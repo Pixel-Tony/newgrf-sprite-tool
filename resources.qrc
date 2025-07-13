@@ -1,0 +1,10 @@
+<RCC>
+    <qresource compression-algorithm="none" prefix="/">
+        <file>assets/icons/pen.png</file>
+        <file>assets/icons/view.png</file>
+        <file>assets/logo-128.png</file>
+        <file>assets/pixChicago.ttf</file>
+        <file>assets/palette-dos.act</file>
+        <file>assets/palette-win.act</file>
+    </qresource>
+</RCC>
