@@ -24,14 +24,13 @@ canvas::canvas(QWidget* _parent)
 
     connect(this, &QTabWidget::currentChanged, [this] { emit changed(current_editor()); });
     connect(this, &canvas::changed,
-        [this]
+        [this](editor* _ed)
         {
-            const auto* const ed = current_editor();
-            if (!ed)
+            if (!_ed)
                 return;
             const auto i = currentIndex();
-            setTabText(i, ed->name());
-            setTabToolTip(i, ed->path());
+            setTabText(i, _ed->name());
+            setTabToolTip(i, _ed->path());
         });
 }
 
@@ -45,7 +44,7 @@ void canvas::bootstrap()
 
 void canvas::create_image(const QString& _name, QSize _size, palette::type _palette)
 {
-    auto* const ed = new editor(_name, _size, _palette, &tool_);
+    auto* const ed = new editor(_name, _size, _palette, &tool_, &primary_, &secondary_);
     connect(ed, &editor::changed, this, &canvas::changed);
     setUpdatesEnabled(false);
     setCurrentIndex(addTab(ed, _name));
@@ -55,7 +54,7 @@ void canvas::create_image(const QString& _name, QSize _size, palette::type _pale
 void canvas::save()
 {
     auto* const ed = current_editor();
-    if (!ed || (ed->history().isClean() && ed->exists()))
+    if (!ed || (ed->history()->isClean() && ed->exists()))
         return;
 
     if (!ed->exists())
@@ -72,8 +71,8 @@ void canvas::save()
 
 void canvas::save_as(editor* _ed)
 {
-    disconnect(file_picker_cb_);
-    file_picker_cb_ = connect(file_picker_, &QFileDialog::accepted,
+    disconnect(fp_conn_);
+    fp_conn_ = connect(file_picker_, &QFileDialog::accepted,
         [this, _ed]
         {
             auto path = file_picker_->selectedFiles()[0];
@@ -99,8 +98,9 @@ void canvas::save_as()
 
 void canvas::close_editor(editor* _ed, int _index)
 {
-    _ed->close(); // has Qt::WA_DeleteOnClose
+    _ed->disconnect(this);
     removeTab(_index != -1 ? _index : currentIndex());
+    _ed->deleteLater();
 }
 
 void canvas::close_image()
@@ -109,14 +109,14 @@ void canvas::close_image()
     if (!ed)
         return;
 
-    if (ed->history().isClean())
+    if (ed->history()->isClean())
     {
         close_editor(ed);
         return;
     }
 
-    save_file_dialog_->disconnect();
-    connect(save_file_dialog_, &save_file_dialog::accepted_save,
+    disconnect(sfd_conn1_);
+    sfd_conn1_ = connect(save_file_dialog_, &save_file_dialog::accepted_save,
         [this, ed](const QString& _path)
         {
             if (is_path_occupied(_path, ed))
@@ -132,7 +132,13 @@ void canvas::close_image()
             save_file_dialog_->close();
             close_editor(ed);
         });
-    connect(save_file_dialog_, &save_file_dialog::accepted_close, [this, ed] { close_editor(ed); });
+    disconnect(sfd_conn2_);
+    sfd_conn2_ = connect(save_file_dialog_, &save_file_dialog::accepted_close,
+        [this, ed]
+        {
+            save_file_dialog_->close();
+            close_editor(ed);
+        });
 
     save_file_dialog_->open(ed->name(), ed->exists() ? &ed->path() : nullptr);
 }
@@ -142,8 +148,8 @@ void canvas::undo()
     auto* ed = current_editor();
     if (!ed)
         return;
-    if (auto& h = ed->history(); h.canUndo())
-        h.undo();
+    if (auto* h = ed->history(); h->canUndo())
+        h->undo();
 }
 
 void canvas::redo()
@@ -151,8 +157,8 @@ void canvas::redo()
     auto* ed = current_editor();
     if (!ed)
         return;
-    if (auto& h = ed->history(); h.canRedo())
-        h.redo();
+    if (auto* h = ed->history(); h->canRedo())
+        h->redo();
 }
 
 void canvas::swap_colors()
@@ -183,7 +189,7 @@ void canvas::default_zoom()
 
 void canvas::on_tool_chosen(const tool::type _type)
 {
-    if (tool_->type_ == _type)
+    if (tool_ && tool_->type_ == _type)
         return;
     auto* next = tool_factory::make(_type);
     delete tool_;

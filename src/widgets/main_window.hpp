@@ -60,6 +60,7 @@ private:
 
     QActionGroup* tool_group_ = nullptr;
     QAction* view_ = nullptr;
+    QAction* pen_ = nullptr;
 };
 } // namespace mytec
 

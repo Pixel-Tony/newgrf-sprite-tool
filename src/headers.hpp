@@ -1,8 +1,8 @@
 #ifndef MYTEC_HEADERS_HPP
 #define MYTEC_HEADERS_HPP
 
-#include <QtCore>    // IWYU pragma: export
-#include <QtGui>     // IWYU pragma: export
-#include <QtWidgets> // IWYU pragma: export
+#include <QtCore>
+#include <QtGui>
+#include <QtWidgets>
 
 #endif // MYTEC_HEADERS_HPP

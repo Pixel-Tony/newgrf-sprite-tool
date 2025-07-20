@@ -50,11 +50,6 @@ main_window::main_window()
     statusBar()->addWidget(status_bar_);
 
     canv_->bootstrap();
-
-#ifdef QT_DEBUG
-    // canv_->create_image("Test", {100, 150}, palette::dos);
-    // palette_toggle_->toggle();
-#endif
 }
 
 void main_window::on_active_editor_changed(editor* const _editor)
@@ -63,11 +58,11 @@ void main_window::on_active_editor_changed(editor* const _editor)
     for (auto* a : QList{save_as_, close_, default_zoom_})
         a->setEnabled(enabled);
 
-    save_->setEnabled(enabled && (!_editor->exists() || !_editor->history().isClean()));
+    save_->setEnabled(enabled && (!_editor->exists() || !_editor->history()->isClean()));
     zoom_out_->setEnabled(enabled && _editor->zoom() != editor::zoom_bounds.first);
     zoom_in_->setEnabled(enabled && _editor->zoom() != editor::zoom_bounds.second);
-    undo_->setEnabled(enabled && _editor->history().canUndo());
-    redo_->setEnabled(enabled && _editor->history().canRedo());
+    undo_->setEnabled(enabled && _editor->history()->canUndo());
+    redo_->setEnabled(enabled && _editor->history()->canRedo());
 
     QString text;
     if (enabled)
@@ -77,7 +72,7 @@ void main_window::on_active_editor_changed(editor* const _editor)
         const auto* const palette = img.get_palette();
         text = QString("%0%1 (%2) | %3x%4 | %5%")
                    .arg(ellipsis(_editor->name(), 50))
-                   .arg("* "[_editor->history().isClean()])
+                   .arg("* "[_editor->history()->isClean()])
                    .arg(palette ? palette->name() : "32bpp")
                    .arg(w)
                    .arg(h)
@@ -150,7 +145,7 @@ void main_window::create_actions_menus()
 
     tool_group_ = new QActionGroup(this);
     view_ = make_tool_action(tool_group_->addAction("View"), {"W"}, ":/assets/icons/view.png", tool::view);
-    // pen_ = make_tool_action(tool_group_->addAction("Pen"), {"D"}, ":/assets/icons/pen.png", tool::pen);
+    pen_ = make_tool_action(tool_group_->addAction("Pen"), {"D"}, ":/assets/icons/pen.png", tool::pen);
     connect(tool_group_, &QActionGroup::triggered,
         [this](auto* _act) { canv_->on_tool_chosen(qvariant_cast<tool::type>(_act->data())); });
     view_->trigger();

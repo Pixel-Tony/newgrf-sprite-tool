@@ -1,7 +1,7 @@
 #ifndef MYTEC_STR_HPP
 #define MYTEC_STR_HPP
-#include <QString>
-#include <QtTypes>
+
+#include <headers.hpp>
 
 namespace mytec
 {

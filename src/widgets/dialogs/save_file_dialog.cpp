@@ -23,8 +23,6 @@ save_file_dialog::save_file_dialog(QWidget* _parent)
     connect(close, &QPushButton::clicked, this, &save_file_dialog::accepted_close);
     connect(cancel, &QPushButton::clicked, this, &save_file_dialog::reject);
 
-    connect(this, &save_file_dialog::accepted_close, &save_file_dialog::reject);
-
     auto* btn_box = new QHBoxLayout;
     btn_box->addWidget(save);
     btn_box->addWidget(close);
@@ -40,5 +38,6 @@ void save_file_dialog::open(const QString& _name, const QString* _path)
 {
     info_->setText(QString(R"(Image "%0" is unsaved. Save?)").arg(_name));
     file_picker_->setDirectory(_path ? QFileInfo{*_path}.path() : QDir::home());
+    QDialog::open();
 }
 } // namespace mytec

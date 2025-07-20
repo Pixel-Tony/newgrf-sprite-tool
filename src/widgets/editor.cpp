@@ -2,22 +2,25 @@
 
 namespace mytec
 {
-editor::editor(QString _name, QSize _image_size, palette::type _palette, tool* const volatile* _tool, QWidget* _parent)
+editor::editor(QString _name, QSize _image_size, palette::type _palette, tool* const* _tool, QColor const* _primary,
+    QColor const* _secondary, QWidget* _parent)
     : QWidget(_parent),
       name_(std::move(_name)),
       image_(_image_size, _palette),
-      tool_(_tool)
+      tool_(_tool),
+      primary_(_primary),
+      secondary_(_secondary),
+      history_(new QUndoStack(this))
 {
     setFocusPolicy(Qt::StrongFocus);
 
-    setAttribute(Qt::WA_DeleteOnClose);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setContentsMargins(2, 2, 2, 2);
 
     connect(this, &editor::changed, this, qOverload<>(&editor::update));
 
-    connect(&history_, &QUndoStack::indexChanged, [this] { emit changed(this); });
-    connect(&history_, &QUndoStack::cleanChanged, [this] { emit changed(this); });
+    connect(history_, &QUndoStack::indexChanged, [this] { emit changed(this); });
+    connect(history_, &QUndoStack::cleanChanged, [this] { emit changed(this); });
 }
 
 const image& editor::get_image() const noexcept { return image_; }
@@ -26,13 +29,17 @@ const QString& editor::name() const noexcept { return name_; }
 
 const QString& editor::path() const noexcept { return path_; }
 
-QUndoStack& editor::history() noexcept { return history_; }
+QUndoStack* editor::history() noexcept { return history_; }
 
 bool editor::exists() const noexcept { return !path_.isEmpty(); }
 
 float editor::zoom() const noexcept { return zoom_; }
 
-bool editor::event(QEvent* _ev) { return (*tool_)->event(_ev, this, &image_) || QWidget::event(_ev); }
+QColor editor::primary() const noexcept { return *primary_; }
+
+QColor editor::secondary() const noexcept { return *secondary_; }
+
+bool editor::event(QEvent* _ev) { return ((*tool_)->event(*_ev, *this, image_)) || QWidget::event(_ev); }
 
 void editor::paintEvent(QPaintEvent*)
 {
@@ -109,9 +116,26 @@ bool editor::save(const QString& _path)
         path_ = _path;
         name_ = QFileInfo{_path}.fileName().remove(pat);
     }
-    history_.setClean();
+    history_->setClean();
     emit changed(this);
     return true;
+}
+
+std::optional<QPoint> editor::to_image_coords(QPointF _click) const
+{
+    const auto fpoint = (_click - (pos() + position_)) / zoom_;
+    const auto pixel = QPoint{qFloor(fpoint.x()), qFloor(fpoint.y())}; // toPoint uses qRound, need qFloor
+    return image_.rect().contains(pixel) ? std::optional{pixel} : std::nullopt;
+}
+
+std::optional<QColor> editor::put_pixel(QPoint _coordinate, QColor _color)
+{
+    auto old = image_.pixelColor(_coordinate);
+    if (old == _color)
+        return std::nullopt;
+    image_.setPixelColor(_coordinate, _color);
+    emit changed(this);
+    return old;
 }
 
 bool editor::apply_zoom_delta(const float _delta, const QPoint _center)

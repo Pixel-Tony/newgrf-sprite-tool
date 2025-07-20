@@ -18,6 +18,8 @@ qt_add_executable(mytec-executable
   src/model/palette_action.hpp
   src/model/palette.cpp
   src/model/palette.hpp
+  src/model/tools/pen.hpp
+  src/model/tools/pen.cpp
   src/model/tools/tool_factory.cpp
   src/model/tools/tool_factory.hpp
   src/model/tools/tool.cpp

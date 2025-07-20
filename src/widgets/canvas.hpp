@@ -1,5 +1,6 @@
 #ifndef MYTEC_CANVAS_HPP
 #define MYTEC_CANVAS_HPP
+
 #include "dialogs/save_file_dialog.hpp"
 #include "editor.hpp"
 #include "model/palette.hpp"
@@ -49,14 +50,15 @@ private:
     void save_as(editor* _ed);
     [[nodiscard]] bool is_path_occupied(const QString& _path, const editor* _editor) const noexcept;
 
-    QFileDialog* file_picker_;
-    QMetaObject::Connection file_picker_cb_;
-    save_file_dialog* save_file_dialog_;
-
     QColor primary_ = qRgb(255, 255, 255);
     QColor secondary_ = qRgb(0, 0, 255);
-
     tool* tool_ = nullptr;
+
+    QFileDialog* file_picker_;
+    QMetaObject::Connection fp_conn_;
+    save_file_dialog* save_file_dialog_;
+    QMetaObject::Connection sfd_conn1_;
+    QMetaObject::Connection sfd_conn2_;
 };
 
 } // namespace mytec

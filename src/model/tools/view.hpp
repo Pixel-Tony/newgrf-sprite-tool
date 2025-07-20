@@ -1,8 +1,9 @@
 #ifndef MYTEC_VIEW_HPP
 #define MYTEC_VIEW_HPP
+
 #include "tool.hpp"
 
-#include <qpoint.h>
+#include <headers.hpp>
 
 namespace mytec
 {
@@ -11,7 +12,7 @@ class view final : public tool
 public:
     view();
 
-    bool event(QEvent* _ev, editor* _editor, image* _image) override;
+    bool event(QEvent& _ev, editor& _editor, image& _image) override;
 
 private:
     QPoint start_drag_delta_;

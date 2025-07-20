@@ -12,6 +12,8 @@ namespace mytec
 {
 create_file_dialog::create_file_dialog(QWidget* _parent)
     : QDialog(_parent),
+      int_validator_(dim_min, dim_max),
+      file_name_validator_(file_name_regex),
       file_name_lbl_(new QLabel("File Name")),
       file_name_(new QLineEdit("Unnamed")),
       width_lbl_(new QLabel("Width")),
@@ -21,9 +23,7 @@ create_file_dialog::create_file_dialog(QWidget* _parent)
       palette_lbl_(new QLabel("Palette")),
       palette_(new QComboBox),
       create_(new QPushButton("Create")),
-      cancel_(new QPushButton("Cancel")),
-      int_validator_(dim_min, dim_max),
-      file_name_validator_(file_name_regex)
+      cancel_(new QPushButton("Cancel"))
 {
     setWindowTitle("Create File");
     setModal(true);

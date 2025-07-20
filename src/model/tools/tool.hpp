@@ -12,14 +12,15 @@ struct tool
 {
     enum type
     {
-        view
+        view,
+        pen
     };
 
     tool(type _type);
 
     virtual ~tool() = default;
 
-    virtual bool event(QEvent* _ev, editor* _editor, image* _image);
+    virtual bool event(QEvent& _ev, editor& _editor, image& _image);
 
     const type type_;
 };

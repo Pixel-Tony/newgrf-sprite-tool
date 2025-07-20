@@ -1,8 +1,8 @@
 #ifndef MYTEC_PALETTE_HPP
 #define MYTEC_PALETTE_HPP
+
 #include <array>
-#include <qcolor.h>
-#include <qobject.h>
+#include <headers.hpp>
 
 namespace mytec
 {

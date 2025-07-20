@@ -25,6 +25,9 @@ private slots:
     void validate();
 
 private:
+    QIntValidator int_validator_;
+    QRegularExpressionValidator file_name_validator_;
+
     QLabel* file_name_lbl_;
     QLineEdit* file_name_;
 
@@ -39,9 +42,6 @@ private:
 
     QPushButton* create_;
     QPushButton* cancel_;
-
-    QIntValidator int_validator_;
-    QRegularExpressionValidator file_name_validator_;
 };
 } // namespace mytec
 
