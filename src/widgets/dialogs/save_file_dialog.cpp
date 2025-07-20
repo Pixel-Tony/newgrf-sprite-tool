@@ -13,14 +13,14 @@ save_file_dialog::save_file_dialog(QWidget* _parent)
     file_picker_->setWindowTitle("Choose file");
     file_picker_->setNameFilter("Image files (*.png)");
     file_picker_->setAcceptMode(QFileDialog::AcceptSave);
-    connect(file_picker_, &QFileDialog::accepted, [this] { emit accepted_save(file_picker_->selectedFiles()[0]); });
+    connect(file_picker_, &QFileDialog::accepted, [this] { emit accepted(file_picker_->selectedFiles().data()); });
 
     auto* save = new QPushButton("Save");
     auto* close = new QPushButton("Close");
     auto* cancel = new QPushButton("Cancel");
 
     connect(save, &QPushButton::clicked, file_picker_, qOverload<>(&QFileDialog::open));
-    connect(close, &QPushButton::clicked, this, &save_file_dialog::accepted_close);
+    connect(close, &QPushButton::clicked, [this] { emit accepted(nullptr); });
     connect(cancel, &QPushButton::clicked, this, &save_file_dialog::reject);
 
     auto* btn_box = new QHBoxLayout;
@@ -34,10 +34,10 @@ save_file_dialog::save_file_dialog(QWidget* _parent)
     setLayout(lyt);
 }
 
-void save_file_dialog::open(const QString& _name, const QString* _path)
+void save_file_dialog::open(const QString& _name, const QString& _path)
 {
     info_->setText(QString(R"(Image "%0" is unsaved. Save?)").arg(_name));
-    file_picker_->setDirectory(_path ? QFileInfo{*_path}.path() : QDir::home());
+    file_picker_->setDirectory(_path.isEmpty() ? QDir::home() : QFileInfo{_path}.path());
     QDialog::open();
 }
 } // namespace mytec

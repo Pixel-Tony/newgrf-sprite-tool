@@ -11,7 +11,7 @@ int mytec_main(int _argc, char** _argv)
     QApplication app{_argc, _argv};
     QApplication::font().setPixelSize(12);
     mytec::main_window win;
-    win.showMaximized();
+    win.show();
 
     return QApplication::exec();
 }

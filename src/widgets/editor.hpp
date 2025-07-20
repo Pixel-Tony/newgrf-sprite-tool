@@ -19,6 +19,8 @@ public:
 
     static constexpr QPair<float, float> zoom_bounds = {1, 32};
 
+    ~editor() override;
+
     [[nodiscard]] const image& get_image() const noexcept;
     [[nodiscard]] const QString& name() const noexcept;
     [[nodiscard]] const QString& path() const noexcept;
@@ -44,7 +46,7 @@ public:
     std::optional<QColor> put_pixel(QPoint _coordinate, QColor _color);
 
 signals:
-    void changed(editor* _editor);
+    void changed();
 
 protected:
     bool event(QEvent* _ev) override;
@@ -52,7 +54,7 @@ protected:
     void wheelEvent(QWheelEvent* _event) override;
 
 private:
-    [[nodiscard]] bool apply_zoom_delta(float _delta, QPoint _center);
+    void apply_zoom_delta(float _delta, QPoint _center);
     image image_;
     QString name_;
     QString path_;

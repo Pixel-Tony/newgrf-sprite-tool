@@ -18,10 +18,10 @@ public slots:
     void open() override;
 
 signals:
-    void confirmed(const QString& _name, QSize _size, palette::type _palette) const;
+    void confirmed(const QString& _name, QSize _size, palette::type _palette);
 
 private slots:
-    void create() const;
+    void create();
     void validate();
 
 private:

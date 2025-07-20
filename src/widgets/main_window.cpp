@@ -46,11 +46,14 @@ main_window::main_window()
 
     connect(create_file_dialog_, &create_file_dialog::confirmed, canv_, &canvas::create_image);
     connect(canv_, &canvas::changed, this, &main_window::on_active_editor_changed);
-    connect(canv_, &canvas::failed, this, [this](const auto& _msg) { show_message(QMessageBox::Warning, _msg); });
+    connect(canv_, &canvas::failed, [this](const QString &_msg) { show_message(_msg); });
+    connect(canv_, &canvas::exit_prepared, this, &main_window::close);
     statusBar()->addWidget(status_bar_);
 
     canv_->bootstrap();
 }
+
+void main_window::closeEvent(QCloseEvent* _ev) { _ev->setAccepted(canv_->try_exit()); }
 
 void main_window::on_active_editor_changed(editor* const _editor)
 {
@@ -88,12 +91,7 @@ void main_window::open()
     // TODO
 }
 
-void main_window::exit()
-{
-    // TODO
-}
-
-void main_window::show_message(QMessageBox::Icon _icon, const QString& _message)
+void main_window::show_message(const QString& _message, QMessageBox::Icon _icon)
 {
     message_box_->setIcon(_icon);
     message_box_->setText(_message);
@@ -126,7 +124,7 @@ void main_window::create_actions_menus()
     file_menu_->addSeparator();
     close_ = file_menu_->addAction(X(WindowClose), "Close", Y(Close), canv_, &canvas::close_image);
     file_menu_->addSeparator();
-    exit_ = file_menu_->addAction(X(ApplicationExit), "Exit", Y(Quit), this, &main_window::exit);
+    exit_ = file_menu_->addAction(X(ApplicationExit), "Exit", Y(Quit), canv_, &canvas::try_exit);
 
     edit_menu_ = menuBar()->addMenu("Edit");
     undo_ = edit_menu_->addAction(X(EditUndo), "Undo", Y(Undo), canv_, &canvas::undo);

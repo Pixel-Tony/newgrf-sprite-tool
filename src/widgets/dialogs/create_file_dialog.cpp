@@ -84,7 +84,7 @@ void create_file_dialog::open()
     this->QDialog::open();
 }
 
-void create_file_dialog::create() const
+void create_file_dialog::create()
 {
     const auto name = file_name_->text();
     const auto size = QSize{width_->text().toInt(), height_->text().toInt()};

@@ -12,11 +12,10 @@ class save_file_dialog : public QDialog
 public:
     save_file_dialog(QWidget* _parent = nullptr);
 
-    void open(const QString& _name, const QString* _path = nullptr);
+    void open(const QString& _name, const QString& _path);
 
 signals:
-    void accepted_close();
-    void accepted_save(const QString& _path);
+    void accepted(const QString* _path);
 
 private:
     QLabel* const info_;

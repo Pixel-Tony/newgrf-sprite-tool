@@ -18,15 +18,17 @@ class main_window : public QMainWindow
 public:
     main_window();
 
+protected:
+    void closeEvent(QCloseEvent*) override;
+
 private slots:
     void on_active_editor_changed(editor* _editor);
     void on_tool_active_changed(bool _engaged);
 
     void open();
-    void exit();
 
 private:
-    void show_message(QMessageBox::Icon _icon, const QString& _message);
+    void show_message(const QString& _message, QMessageBox::Icon _icon = QMessageBox::Warning);
     void load_style();
     void create_actions_menus();
 

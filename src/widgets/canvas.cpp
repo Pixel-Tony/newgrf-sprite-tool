@@ -22,16 +22,16 @@ canvas::canvas(QWidget* _parent)
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setContentsMargins({});
 
-    connect(this, &QTabWidget::currentChanged, [this] { emit changed(current_editor()); });
     connect(this, &canvas::changed,
         [this](editor* _ed)
         {
             if (!_ed)
                 return;
             const auto i = currentIndex();
-            setTabText(i, _ed->name());
+            setTabText(i, _ed->name() + "* "[_ed->history()->isClean()]);
             setTabToolTip(i, _ed->path());
         });
+    connect(this, &QTabWidget::currentChanged, [this] { emit changed(current_editor()); });
 }
 
 canvas::~canvas() { delete tool_; }
@@ -45,7 +45,7 @@ void canvas::bootstrap()
 void canvas::create_image(const QString& _name, QSize _size, palette::type _palette)
 {
     auto* const ed = new editor(_name, _size, _palette, &tool_, &primary_, &secondary_);
-    connect(ed, &editor::changed, this, &canvas::changed);
+    connect(ed, &editor::changed, [this, ed] { emit changed(ed); });
     setUpdatesEnabled(false);
     setCurrentIndex(addTab(ed, _name));
     setUpdatesEnabled(true);
@@ -73,17 +73,7 @@ void canvas::save_as(editor* _ed)
 {
     disconnect(fp_conn_);
     fp_conn_ = connect(file_picker_, &QFileDialog::accepted,
-        [this, _ed]
-        {
-            auto path = file_picker_->selectedFiles()[0];
-            if (is_path_occupied(path, _ed))
-            {
-                emit failed(err_file_already_open);
-                return;
-            }
-            if (!_ed->save(path))
-                emit failed(err_could_not_save);
-        });
+        [this, _ed] { fd_on_accepted(file_picker_->selectedFiles().data(), _ed); });
 
     if (_ed->exists())
         file_picker_->setDirectory(_ed->path());
@@ -98,9 +88,8 @@ void canvas::save_as()
 
 void canvas::close_editor(editor* _ed, int _index)
 {
-    _ed->disconnect(this);
     removeTab(_index != -1 ? _index : currentIndex());
-    _ed->deleteLater();
+    _ed->close();
 }
 
 void canvas::close_image()
@@ -108,39 +97,39 @@ void canvas::close_image()
     auto* ed = current_editor();
     if (!ed)
         return;
-
     if (ed->history()->isClean())
     {
         close_editor(ed);
         return;
     }
+    disconnect(sfd_conn_);
+    sfd_conn_ = connect(save_file_dialog_, &save_file_dialog::accepted,
+        [this, ed](const QString* _path) { fd_on_accepted(_path, ed, true); });
 
-    disconnect(sfd_conn1_);
-    sfd_conn1_ = connect(save_file_dialog_, &save_file_dialog::accepted_save,
-        [this, ed](const QString& _path)
-        {
-            if (is_path_occupied(_path, ed))
-            {
-                emit failed(err_file_already_open);
-                return;
-            }
-            if (!ed->save(_path))
-            {
-                emit failed(err_could_not_save);
-                return;
-            }
-            save_file_dialog_->close();
-            close_editor(ed);
-        });
-    disconnect(sfd_conn2_);
-    sfd_conn2_ = connect(save_file_dialog_, &save_file_dialog::accepted_close,
-        [this, ed]
-        {
-            save_file_dialog_->close();
-            close_editor(ed);
-        });
+    save_file_dialog_->open(ed->name(), ed->path());
+}
 
-    save_file_dialog_->open(ed->name(), ed->exists() ? &ed->path() : nullptr);
+bool canvas::try_exit()
+{
+    while (count() > 0)
+    {
+        auto* ed = qobject_cast<editor*>(widget(count() - 1));
+        if (ed->history()->isClean())
+        {
+            close_editor(ed);
+            continue;
+        }
+
+        disconnect(sfd_conn_);
+        sfd_conn_ = connect(save_file_dialog_, &save_file_dialog::accepted,
+            [this, ed](const QString* _path) { fd_on_accepted(_path, ed, true, true); });
+
+        if (save_file_dialog_->isHidden())
+            save_file_dialog_->open(ed->name(), ed->path());
+        return false;
+    }
+    emit exit_prepared();
+    return true;
 }
 
 void canvas::undo()
@@ -208,5 +197,28 @@ bool canvas::is_path_occupied(const QString& _path, const editor* _editor) const
             return true;
     }
     return false;
+}
+
+void canvas::fd_on_accepted(const QString* _path, editor* _ed, bool _close, bool _try_exit)
+{
+    if (_path)
+    {
+        if (is_path_occupied(*_path, _ed))
+        {
+            emit failed(err_file_already_open);
+            return;
+        }
+        if (!_ed->save(*_path))
+        {
+            emit failed(err_could_not_save);
+            return;
+        }
+    }
+    if (!_close)
+        return;
+    save_file_dialog_->close();
+    close_editor(_ed);
+    if (_try_exit)
+        try_exit();
 }
 } // namespace mytec
