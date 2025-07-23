@@ -36,12 +36,6 @@ canvas::canvas(QWidget* _parent)
 
 canvas::~canvas() { delete tool_; }
 
-void canvas::bootstrap()
-{
-    emit changed(nullptr);
-    emit colors_changed(primary_, secondary_);
-}
-
 void canvas::create_image(const QString& _name, QSize _size, palette::type _palette)
 {
     auto* const ed = new editor(_name, _size, _palette, &tool_, &primary_, &secondary_);
@@ -150,12 +144,10 @@ void canvas::redo()
         h->redo();
 }
 
-void canvas::swap_colors()
+void canvas::update_colors(QColor _primary, QColor _secondary)
 {
-    const auto tmp = primary_;
-    primary_ = secondary_;
-    secondary_ = tmp;
-    emit colors_changed(primary_, secondary_);
+    primary_ = _primary;
+    secondary_ = _secondary;
 }
 
 void canvas::zoom_in()

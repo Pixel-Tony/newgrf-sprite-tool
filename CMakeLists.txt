@@ -34,6 +34,10 @@ qt_add_executable(mytec-executable
   src/widgets/dialogs/create_file_dialog.hpp
   src/widgets/dialogs/save_file_dialog.cpp
   src/widgets/dialogs/save_file_dialog.hpp
+  src/widgets/internal/palette_tab_color.cpp
+  src/widgets/internal/palette_tab_color.hpp
+  src/widgets/internal/palette_tab_sprite.cpp
+  src/widgets/internal/palette_tab_sprite.hpp
   src/widgets/editor.cpp
   src/widgets/editor.hpp
   src/widgets/main_window.cpp
@@ -41,6 +45,10 @@ qt_add_executable(mytec-executable
   src/widgets/palette_tab.cpp
   src/widgets/palette_tab.hpp
 )
+
+if (NOT DEFINED QT_DEBUG)
+  target_sources(mytec-executable PRIVATE resources-release.qrc)
+endif()
 
 set_target_properties(mytec-executable PROPERTIES
   CXX_STANDARD 20

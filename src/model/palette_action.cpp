@@ -1,13 +1,5 @@
 #include "palette_action.hpp"
 
-#include <qcolor.h>
-#include <qpainter.h>
-#include <qpixmap.h>
-#include <qpoint.h>
-#include <qsize.h>
-#include <qtoolbutton.h>
-#include <qwidgetaction.h>
-
 namespace mytec
 {
 palette_action::palette_action(QObject* _parent) : QWidgetAction(_parent) { setCheckable(true); }
@@ -15,7 +7,7 @@ palette_action::palette_action(QObject* _parent) : QWidgetAction(_parent) { setC
 void palette_action::change_colors(QColor _primary, QColor _secondary)
 {
     QPixmap pix{{24, 24}};
-    pix.fill(QColorConstants::Transparent);
+    pix.fill(Qt::transparent);
     QPainter painter{&pix};
     painter.setPen(qRgba(0, 0, 0, 255));
     painter.setBrush(_secondary);

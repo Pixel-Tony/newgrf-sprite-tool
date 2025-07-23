@@ -1,11 +1,7 @@
 #ifndef MYTEC_PALETTE_BUTTON_HPP
 #define MYTEC_PALETTE_BUTTON_HPP
-#include <qcolor.h>
-#include <qevent.h>
-#include <qrgb.h>
-#include <qtoolbutton.h>
-#include <qwidget.h>
-#include <qwidgetaction.h>
+
+#include <headers.hpp>
 
 namespace mytec
 {

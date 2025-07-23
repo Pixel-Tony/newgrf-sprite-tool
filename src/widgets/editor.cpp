@@ -18,11 +18,10 @@ editor::editor(QString _name, QSize _image_size, palette::type _palette, tool* c
     setContentsMargins(2, 2, 2, 2);
 
     connect(this, &editor::changed, qOverload<>(&editor::update));
-    connect(history_, &QUndoStack::indexChanged, [this] { emit changed(); });
-    connect(history_, &QUndoStack::cleanChanged, [this] { emit changed(); });
+    connect(history_, &QUndoStack::indexChanged, this, &editor::changed);
+    connect(history_, &QUndoStack::cleanChanged, this, &editor::changed);
 }
 
-// history emits even after destruction of editor, causes an assert fail
 editor::~editor() { history_->disconnect(this); }
 
 const image& editor::get_image() const noexcept { return image_; }
@@ -122,6 +121,11 @@ std::optional<QPoint> editor::to_image_coords(QPointF _click) const
 
 std::optional<QColor> editor::put_pixel(QPoint _coordinate, QColor _color)
 {
+    if (const auto* const pal = image_.get_palette(); pal && !pal->has(_color))
+    {
+        QToolTip::showText(QCursor::pos(), "Color not in the image palette");
+        return std::nullopt;
+    }
     auto old = image_.pixelColor(_coordinate);
     if (old == _color)
         return std::nullopt;

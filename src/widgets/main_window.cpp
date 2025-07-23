@@ -9,8 +9,7 @@ QIcon icon_from_atlas(const QPixmap& _atlas, const std::initializer_list<std::pa
 {
     QIcon result;
     const auto dim = _atlas.height();
-    int shift = 0;
-    for (auto [mode, state] : _modes)
+    for (int shift = 0; auto [mode, state] : _modes)
         result.addPixmap(_atlas.copy(dim * (shift++), 0, dim, dim), mode, state);
     return result;
 }
@@ -34,23 +33,26 @@ main_window::main_window()
     : canv_(new canvas),
       status_bar_(new QLabel),
       create_file_dialog_(new create_file_dialog(this)),
-      message_box_(new QMessageBox(QMessageBox::Icon::Information, {}, {}, QMessageBox::StandardButton::Ok, this))
+      message_box_(new QMessageBox(QMessageBox::Icon::Information, {}, {}, QMessageBox::StandardButton::Ok, this)),
+      palette_tab_(new palette_tab(this))
 {
     setWindowTitle("Mytec");
-    setMinimumSize(480, 320);
+    setMinimumSize(800, 600);
     setWindowIcon(QIcon{":/assets/logo-128.png"});
-    load_style();
 
     create_actions_menus();
     setCentralWidget(canv_);
 
+    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, palette_tab_);
+    palette_tab_->bootstrap();
+
     connect(create_file_dialog_, &create_file_dialog::confirmed, canv_, &canvas::create_image);
     connect(canv_, &canvas::changed, this, &main_window::on_active_editor_changed);
-    connect(canv_, &canvas::failed, [this](const QString &_msg) { show_message(_msg); });
+    connect(canv_, &canvas::failed, [this](const QString& _msg) { show_message(_msg); });
     connect(canv_, &canvas::exit_prepared, this, &main_window::close);
     statusBar()->addWidget(status_bar_);
 
-    canv_->bootstrap();
+    on_active_editor_changed(nullptr);
 }
 
 void main_window::closeEvent(QCloseEvent* _ev) { _ev->setAccepted(canv_->try_exit()); }
@@ -98,17 +100,6 @@ void main_window::show_message(const QString& _message, QMessageBox::Icon _icon)
     message_box_->open();
 }
 
-void main_window::load_style()
-{
-    QPalette palette;
-    palette.setColor(QPalette::Window, qRgb(0x1D, 0x1D, 0x26));     // very dark gray
-    palette.setColor(QPalette::WindowText, qRgb(0xFA, 0xF8, 0xE8)); // pale yellow
-    // primary qRgb(0x3E, 0x43, 0x48) // dark grayish blue
-    // tertiary qRgb(0x46, 0x8C, 0x4D) // dark lime green
-    setAutoFillBackground(true);
-    setPalette(palette);
-}
-
 void main_window::create_actions_menus()
 {
 #define X(_v) QIcon::fromTheme(QIcon::ThemeIcon::_v)
@@ -130,7 +121,7 @@ void main_window::create_actions_menus()
     undo_ = edit_menu_->addAction(X(EditUndo), "Undo", Y(Undo), canv_, &canvas::undo);
     redo_ = edit_menu_->addAction(X(EditRedo), "Redo", Y(Redo), canv_, &canvas::redo);
     edit_menu_->addSeparator();
-    swap_colors_ = edit_menu_->addAction("Swap Pen Colors", QKeySequence{"X"}, canv_, &canvas::swap_colors);
+    swap_colors_ = edit_menu_->addAction("Swap Pen Colors", QKeySequence{"X"}, palette_tab_, &palette_tab::swap_colors);
 
     view_menu_ = menuBar()->addMenu("View");
     zoom_in_ = view_menu_->addAction(X(ZoomIn), "Zoom In", Y(ZoomIn), canv_, &canvas::zoom_in);
@@ -149,11 +140,11 @@ void main_window::create_actions_menus()
     view_->trigger();
 
     palette_toggle_ = new palette_action(this);
-    palette_tab_ = new palette_tab(this);
-    connect(canv_, &canvas::colors_changed, palette_toggle_, &palette_action::change_colors);
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, palette_tab_);
     connect(palette_toggle_, &palette_action::toggled, palette_tab_, &palette_tab::setVisible);
     connect(palette_tab_, &palette_tab::visibilityChanged, palette_toggle_, &palette_action::setChecked);
+
+    connect(palette_tab_, &palette_tab::colors_updated, palette_toggle_, &palette_action::change_colors);
+    connect(palette_tab_, &palette_tab::colors_updated, canv_, &canvas::update_colors);
 
     tool_menu_ = menuBar()->addMenu("Tool");
     tool_menu_->addActions(tool_group_->actions());
