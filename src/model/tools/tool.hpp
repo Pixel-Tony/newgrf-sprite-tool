@@ -1,7 +1,7 @@
 #ifndef MYTEC_TOOL_HPP
 #define MYTEC_TOOL_HPP
 
-#include <qevent.h>
+#include <headers.hpp>
 
 namespace mytec
 {
