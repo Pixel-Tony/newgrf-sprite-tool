@@ -1,38 +1,56 @@
 #include "palette.hpp"
 
 #include <array>
-#include <qcolor.h>
-#include <qobject.h>
-#include <qresource.h>
 
 namespace
 {
-std::array<QColor, 256> convert(const QString& _filename)
-{
-    std::array<QColor, 256> result;
-    const auto* const ptr = QResource{_filename}.data();
-    for (int i = 0; auto& dest : result)
-    {
-        dest = QColor{ptr[i], ptr[i + 1], ptr[i + 2]};
-        i += 3;
-    }
-    return result;
-}
+using namespace mytec;
+
+std::array<palette*, palette::_count> palettes = {nullptr};
+auto** p_none = &palettes[palette::none];
+auto** p_dos = &palettes[palette::dos];
+auto** p_win = &palettes[palette::windows];
 } // namespace
 
 namespace mytec
 {
 const palette* palette::make(palette::type _type)
 {
-    static const palette dos{":/assets/palette-dos.act", "DOS"};
-    static const palette win{":/assets/palette-win.act", "Windows"};
-    static constexpr std::array<const palette*, 3> _choice{{nullptr, &dos, &win}};
-    return _choice[static_cast<int>(_type)];
+    if (*p_dos == nullptr)
+    {
+        *p_dos = new palette(type::dos, ":/assets/palette-dos.act", "DOS");
+        *p_win = new palette(type::windows, ":/assets/palette-win.act", "Windows");
+    }
+    return palettes[_type];
 }
+
+const palette* palette::find(const QList<QRgb>& _color_table)
+{
+    if (std::ranges::equal(_color_table, (*p_dos)->contents()))
+        return *p_dos;
+    if (std::ranges::equal(_color_table, (*p_win)->contents()))
+        return *p_win;
+    return nullptr;
+}
+
+const QVector<QRgb>& palette::contents() const noexcept { return contents_; }
 
 const QString& palette::name() const noexcept { return name_; }
 
 QColor palette::get(int _x, int _y) const noexcept { return contents_[_y * 16 + _x]; }
 
-palette::palette(const QString& _filename, QString&& _name) : name_(_name), contents_(convert(_filename)) {}
+palette::palette(const type _type, const QString& _filename, QString&& _name)
+    : type_(_type),
+      name_(_name),
+      contents_(256)
+{
+    const auto* const ptr = QResource{_filename}.data();
+    for (int i = 0; i < 256; ++i)
+        contents_[i] = qRgb(ptr[3 * i], ptr[3 * i + 1], ptr[3 * i + 2]);
+
+    for (int i = 0; auto c : contents_)
+        colors_[c] = i++;
+}
+
+bool palette::color_comparer::operator()(QColor _a, QColor _b) const { return _a.rgba() < _b.rgba(); }
 } // namespace mytec
