@@ -29,7 +29,6 @@ private slots:
 
 private:
     void show_message(const QString& _message, QMessageBox::Icon _icon = QMessageBox::Warning);
-    void load_style();
     void create_actions_menus();
 
     canvas* canv_ = nullptr;
@@ -54,7 +53,6 @@ private:
     QAction* zoom_in_ = nullptr;
     QAction* zoom_out_ = nullptr;
     QAction* default_zoom_ = nullptr;
-
     palette_action* palette_toggle_ = nullptr;
     palette_tab* palette_tab_ = nullptr;
 

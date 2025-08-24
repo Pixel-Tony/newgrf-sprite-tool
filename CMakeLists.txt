@@ -42,6 +42,10 @@ qt_add_executable(mytec-executable
   src/widgets/palette_tab.hpp
 )
 
+if (NOT DEFINED QT_DEBUG)
+  target_sources(mytec-executable PRIVATE resources-release.qrc)
+endif()
+
 set_target_properties(mytec-executable PROPERTIES
   CXX_STANDARD 20
   OUTPUT_NAME mytec

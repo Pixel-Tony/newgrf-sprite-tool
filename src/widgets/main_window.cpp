@@ -9,8 +9,7 @@ QIcon icon_from_atlas(const QPixmap& _atlas, const std::initializer_list<std::pa
 {
     QIcon result;
     const auto dim = _atlas.height();
-    int shift = 0;
-    for (auto [mode, state] : _modes)
+    for (int shift = 0; auto [mode, state] : _modes)
         result.addPixmap(_atlas.copy(dim * (shift++), 0, dim, dim), mode, state);
     return result;
 }
@@ -39,7 +38,6 @@ main_window::main_window()
     setWindowTitle("Mytec");
     setMinimumSize(480, 320);
     setWindowIcon(QIcon{":/assets/logo-128.png"});
-    load_style();
 
     create_actions_menus();
     setCentralWidget(canv_);
@@ -96,17 +94,6 @@ void main_window::show_message(const QString& _message, QMessageBox::Icon _icon)
     message_box_->setIcon(_icon);
     message_box_->setText(_message);
     message_box_->open();
-}
-
-void main_window::load_style()
-{
-    QPalette palette;
-    palette.setColor(QPalette::Window, qRgb(0x1D, 0x1D, 0x26));     // very dark gray
-    palette.setColor(QPalette::WindowText, qRgb(0xFA, 0xF8, 0xE8)); // pale yellow
-    // primary qRgb(0x3E, 0x43, 0x48) // dark grayish blue
-    // tertiary qRgb(0x46, 0x8C, 0x4D) // dark lime green
-    setAutoFillBackground(true);
-    setPalette(palette);
 }
 
 void main_window::create_actions_menus()

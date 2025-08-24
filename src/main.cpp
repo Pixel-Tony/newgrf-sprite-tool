@@ -11,6 +11,28 @@ int mytec_main(int _argc, char** _argv)
     QApplication app{_argc, _argv};
     QApplication::font().setPixelSize(12);
     mytec::main_window win;
+
+#ifdef QT_DEBUG
+    {
+        const QString path = "../assets/style.qss";
+        QFileSystemWatcher watcher{{path}};
+        const auto cb = [&win, &path]
+        {
+            QFile style{path};
+            style.open(QFile::ReadOnly);
+            win.setStyleSheet(style.readAll());
+        };
+        QObject::connect(&watcher, &QFileSystemWatcher::fileChanged, cb);
+        cb();
+    }
+#else
+    {
+        QFile style{":/assets/style.qss"};
+        style.open(QFile::ReadOnly);
+        win.setStyleSheet(style.readAll());
+    }
+#endif
+
     win.show();
 
     return QApplication::exec();
