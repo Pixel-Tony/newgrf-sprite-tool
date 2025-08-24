@@ -1,6 +1,8 @@
+# build files
 build
+
+# IDE files
 .vscode
 .idea
-local
 .cache
-*.g.cpp
+*.code-workspace
