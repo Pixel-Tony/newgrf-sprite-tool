@@ -5,7 +5,7 @@ namespace
 constexpr auto dim_min = 1;
 constexpr auto dim_max = 5000;
 const auto file_name_regex = QRegularExpression{R"([^<>:'"/\\|?*]+)"};
-const auto palette_options = QStringList{"DOS", "Windows (Legacy)"};
+const auto palette_options = QStringList{"None (32bpp)", "DOS", "Windows (Legacy)"};
 } // namespace
 
 namespace mytec
@@ -80,8 +80,9 @@ void create_file_dialog::open()
     file_name_->setText("Unnamed");
     width_->setText("100");
     height_->setText("100");
-    palette_->setCurrentIndex(0);
-    this->QDialog::open();
+    palette_->setCurrentIndex(1);
+    setFocus(Qt::PopupFocusReason);
+    QDialog::open();
 }
 
 void create_file_dialog::create()
