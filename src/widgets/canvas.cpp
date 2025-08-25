@@ -44,7 +44,7 @@ void canvas::bootstrap()
 
 void canvas::create_image(const QString& _name, QSize _size, palette::type _palette)
 {
-    auto* const ed = new editor(_name, _size, _palette, &tool_, &primary_, &secondary_);
+    auto* const ed = new editor(QString{_name}, _size, _palette, &tool_, &primary_, &secondary_);
     connect(ed, &editor::changed, [this, ed] { emit changed(ed); });
     setUpdatesEnabled(false);
     setCurrentIndex(addTab(ed, _name));

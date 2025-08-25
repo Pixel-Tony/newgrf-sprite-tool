@@ -4,18 +4,26 @@ namespace
 {
 QString name_from_path(const QString& _path)
 {
-    static const auto png_pat = QRegularExpression("\\\\.png$");
-    return QFileInfo{_path}.fileName().remove(png_pat);
+    auto value = QFileInfo{_path}.fileName();
+    const auto slice_len = value.length() - 4;
+    return value.endsWith(".png", Qt::CaseInsensitive) && slice_len > 0 ? value.slice(0, slice_len) : value;
 }
 } // namespace
 
 namespace mytec
 {
-editor::editor(QString _name, QSize _image_size, palette::type _palette, tool* const* _tool, QColor const* _primary,
+editor::editor(QString&& _name, QSize _image_size, palette::type _palette, tool* const* _tool, QColor const* _primary,
+    QColor const* _secondary, QWidget* _parent)
+    : editor(image(_image_size, _palette), {}, std::move(_name), _tool, _primary, _secondary, _parent)
+{
+}
+
+editor::editor(image&& _image, QString&& _path, QString&& _name, tool* const* _tool, QColor const* _primary,
     QColor const* _secondary, QWidget* _parent)
     : QWidget(_parent),
+      image_(std::move(_image)),
       name_(std::move(_name)),
-      image_(_image_size, _palette),
+      path_(std::move(_path)),
       tool_(_tool),
       primary_(_primary),
       secondary_(_secondary),
@@ -27,11 +35,10 @@ editor::editor(QString _name, QSize _image_size, palette::type _palette, tool* c
     setContentsMargins(2, 2, 2, 2);
 
     connect(this, &editor::changed, qOverload<>(&editor::update));
-    connect(history_, &QUndoStack::indexChanged, [this] { emit changed(); });
-    connect(history_, &QUndoStack::cleanChanged, [this] { emit changed(); });
+    connect(history_, &QUndoStack::indexChanged, this, &editor::changed);
+    connect(history_, &QUndoStack::cleanChanged, this, &editor::changed);
 }
 
-// history emits even after destruction of editor, causes an assert fail
 editor::~editor() { history_->disconnect(this); }
 
 const image& editor::get_image() const noexcept { return image_; }

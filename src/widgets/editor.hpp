@@ -14,7 +14,7 @@ class editor : public QWidget
     Q_OBJECT
 
 public:
-    editor(QString _name, QSize _image_size, palette::type _palette, tool* const* _tool, QColor const* _primary,
+    editor(QString&& _name, QSize _image_size, palette::type _palette, tool* const* _tool, QColor const* _primary,
         QColor const* _secondary, QWidget* _parent = nullptr);
 
     static constexpr QPair<float, float> zoom_bounds = {1, 32};
@@ -54,7 +54,11 @@ protected:
     void wheelEvent(QWheelEvent* _event) override;
 
 private:
+    editor(image&& _image, QString&& _path, QString&& _name, tool* const* _tool, QColor const* _primary,
+        QColor const* _secondary, QWidget* _parent);
+
     void apply_zoom_delta(float _delta, QPoint _center);
+
     image image_;
     QString name_;
     QString path_;
