@@ -1,5 +1,14 @@
 #include "editor.hpp"
 
+namespace
+{
+QString name_from_path(const QString& _path)
+{
+    static const auto png_pat = QRegularExpression("\\\\.png$");
+    return QFileInfo{_path}.fileName().remove(png_pat);
+}
+} // namespace
+
 namespace mytec
 {
 editor::editor(QString _name, QSize _image_size, palette::type _palette, tool* const* _tool, QColor const* _primary,
@@ -100,23 +109,24 @@ bool editor::save() { return save(path_); }
 
 bool editor::save(const QString& _path)
 {
-    static const auto pat = QRegularExpression("\\\\.png$");
-
-    if (!image_.save(_path, "png"))
+    if (!image_.save_with_palette(_path, "png"))
         return false;
     if (path_ != _path)
     {
         path_ = _path;
-        name_ = QFileInfo{_path}.fileName().remove(pat);
+        name_ = name_from_path(path_);
     }
-    history_->setClean();
+    if (!history_->isClean())
+        history_->setClean();
+    else
+        emit changed();
     return true;
 }
 
 std::optional<QPoint> editor::to_image_coords(QPointF _click) const
 {
     const auto fpoint = (_click - (pos() + position_)) / zoom_;
-    const auto pixel = QPoint{qFloor(fpoint.x()), qFloor(fpoint.y())}; // toPoint uses qRound, need qFloor
+    const auto pixel = QPoint{qFloor(fpoint.x()), qFloor(fpoint.y())}; // ::toPoint uses qRound, need qFloor
     return image_.rect().contains(pixel) ? std::optional{pixel} : std::nullopt;
 }
 
@@ -125,7 +135,11 @@ std::optional<QColor> editor::put_pixel(QPoint _coordinate, QColor _color)
     auto old = image_.pixelColor(_coordinate);
     if (old == _color)
         return std::nullopt;
-    image_.setPixelColor(_coordinate, _color);
+    if (!image_.setPixelColor(_coordinate, _color))
+    {
+        QToolTip::showText(QCursor::pos(), "Color not in the image palette");
+        return std::nullopt;
+    }
     emit changed();
     return old;
 }

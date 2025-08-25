@@ -10,9 +10,13 @@ class image : public QImage
     Q_GADGET
 
 public:
-    image(QSize _size, palette::type _type, QImage::Format = QImage::Format_RGBA8888);
+    image(QSize _size, palette::type _type);
 
     [[nodiscard]] const palette* get_palette() const noexcept;
+
+    bool setPixelColor(QPoint& _point, QColor& _color);
+
+    bool save_with_palette(const QString& _filepath, const char* _format = nullptr);
 
 private:
     const palette* palette_;
