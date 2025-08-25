@@ -46,6 +46,7 @@ public slots:
     void on_tool_chosen(tool::type _type);
 
 private:
+    void add_editor(editor* _ed);
     [[nodiscard]] editor* current_editor() const noexcept;
     void close_editor(editor* _ed, int _index = -1);
     void save_as(editor* _ed);

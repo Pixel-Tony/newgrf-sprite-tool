@@ -42,13 +42,17 @@ void canvas::bootstrap()
     emit colors_changed(primary_, secondary_);
 }
 
+void canvas::add_editor(editor* const _ed)
+{
+    connect(_ed, &editor::changed, [this, _ed] { emit changed(_ed); });
+    setUpdatesEnabled(false);
+    setCurrentIndex(addTab(_ed, _ed->name()));
+    setUpdatesEnabled(true);
+}
+
 void canvas::create_image(const QString& _name, QSize _size, palette::type _palette)
 {
-    auto* const ed = new editor(QString{_name}, _size, _palette, &tool_, &primary_, &secondary_);
-    connect(ed, &editor::changed, [this, ed] { emit changed(ed); });
-    setUpdatesEnabled(false);
-    setCurrentIndex(addTab(ed, _name));
-    setUpdatesEnabled(true);
+    add_editor(new editor(QString{_name}, _size, _palette, &tool_, &primary_, &secondary_));
 }
 
 void canvas::save()
