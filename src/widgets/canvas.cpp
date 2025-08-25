@@ -55,6 +55,26 @@ void canvas::create_image(const QString& _name, QSize _size, palette::type _pale
     add_editor(new editor(QString{_name}, _size, _palette, &tool_, &primary_, &secondary_));
 }
 
+void canvas::open_image(const QString& _filepath)
+{
+    for (int i = 0, c = count(); i < c; ++i)
+    {
+        if (qobject_cast<editor*>(widget(i))->path() == _filepath)
+        {
+            setCurrentIndex(i);
+            return;
+        }
+    }
+    try
+    {
+        add_editor(new editor(_filepath, &tool_, &primary_, &secondary_));
+    }
+    catch (std::runtime_error& err)
+    {
+        emit failed(err.what());
+    }
+}
+
 void canvas::save()
 {
     auto* const ed = current_editor();

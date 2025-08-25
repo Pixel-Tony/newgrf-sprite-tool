@@ -12,6 +12,8 @@ class image : public QImage
 public:
     image(QSize _size, palette::type _type);
 
+    explicit image(const QString& _filepath);
+
     [[nodiscard]] const palette* get_palette() const noexcept;
 
     bool setPixelColor(QPoint& _point, QColor& _color);

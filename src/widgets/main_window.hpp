@@ -25,8 +25,6 @@ private slots:
     void on_active_editor_changed(editor* _editor);
     void on_tool_active_changed(bool _engaged);
 
-    void open();
-
 private:
     void show_message(const QString& _message, QMessageBox::Icon _icon = QMessageBox::Warning);
     void create_actions_menus();
@@ -34,6 +32,7 @@ private:
     canvas* canv_ = nullptr;
     QLabel* status_bar_ = nullptr;
     create_file_dialog* create_file_dialog_ = nullptr;
+    QFileDialog* open_fd_ = nullptr;
     QMessageBox* message_box_ = nullptr;
 
     QMenu* file_menu_ = nullptr;

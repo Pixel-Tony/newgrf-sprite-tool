@@ -33,11 +33,17 @@ main_window::main_window()
     : canv_(new canvas),
       status_bar_(new QLabel),
       create_file_dialog_(new create_file_dialog(this)),
+      open_fd_(new QFileDialog(this, "Choose file to open", {}, "*.png")),
       message_box_(new QMessageBox(QMessageBox::Icon::Information, {}, {}, QMessageBox::StandardButton::Ok, this))
 {
     setWindowTitle("Mytec");
     setMinimumSize(480, 320);
     setWindowIcon(QIcon{":/assets/logo-128.png"});
+
+    open_fd_->setWindowTitle("Choose file to open...");
+    open_fd_->setNameFilter("Image Files (*.png)");
+    open_fd_->setAcceptMode(QFileDialog::AcceptOpen);
+    connect(open_fd_, &QFileDialog::accepted, canv_, [this]() { canv_->open_image(open_fd_->selectedFiles()[0]); });
 
     create_actions_menus();
     setCentralWidget(canv_);
@@ -84,11 +90,6 @@ void main_window::on_active_editor_changed(editor* const _editor)
 
 void main_window::on_tool_active_changed(bool _engaged) { menuBar()->setDisabled(_engaged); }
 
-void main_window::open()
-{
-    // TODO
-}
-
 void main_window::show_message(const QString& _message, QMessageBox::Icon _icon)
 {
     message_box_->setIcon(_icon);
@@ -104,7 +105,7 @@ void main_window::create_actions_menus()
     file_menu_ = menuBar()->addMenu("File");
     create_ = file_menu_->addAction(X(DocumentNew), "New...", Y(New), create_file_dialog_, &create_file_dialog::open);
     file_menu_->addSeparator();
-    open_ = file_menu_->addAction(X(DocumentOpen), "Open...", Y(Open), this, &main_window::open);
+    open_ = file_menu_->addAction(X(DocumentOpen), "Open...", Y(Open), open_fd_, qOverload<>(&QFileDialog::open));
     file_menu_->addSeparator();
     save_ = file_menu_->addAction(X(DocumentSave), "Save", Y(Save), canv_, &canvas::save);
     save_as_ = file_menu_->addAction(X(DocumentSaveAs), "Save As...", Y(SaveAs), canv_, qOverload<>(&canvas::save_as));

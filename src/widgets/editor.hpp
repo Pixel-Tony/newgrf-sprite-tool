@@ -17,6 +17,9 @@ public:
     editor(QString&& _name, QSize _image_size, palette::type _palette, tool* const* _tool, QColor const* _primary,
         QColor const* _secondary, QWidget* _parent = nullptr);
 
+    editor(const QString& _filepath, tool* const* _tool, QColor const* _primary, QColor const* _secondary,
+        QWidget* _parent = nullptr);
+
     static constexpr QPair<float, float> zoom_bounds = {1, 32};
 
     ~editor() override;

@@ -30,6 +30,7 @@ signals:
 
 public slots:
     void create_image(const QString& _name, QSize _size, palette::type _palette);
+    void open_image(const QString& _filepath);
     void save();
     void save_as();
     void close_image();

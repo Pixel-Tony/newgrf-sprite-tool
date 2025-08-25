@@ -7,6 +7,14 @@ image::image(QSize _size, palette::type _type) : QImage(_size, Format_ARGB32), p
     fill(Qt::white);
 }
 
+image::image(const QString& _filepath) : QImage(_filepath, "png"), palette_(palette::find(colorTable()))
+{
+    if (isNull())
+        throw std::runtime_error{"File is not an image."};
+    if (format() != Format_ARGB32)
+        convertTo(Format_ARGB32);
+}
+
 bool image::setPixelColor(QPoint& _point, QColor& _color)
 {
     if (palette_ && !palette_->has(_color))

@@ -18,6 +18,13 @@ editor::editor(QString&& _name, QSize _image_size, palette::type _palette, tool*
 {
 }
 
+editor::editor(
+    const QString& _filepath, tool* const* _tool, QColor const* _primary, QColor const* _secondary, QWidget* _parent)
+    : editor(image{_filepath}, QString{_filepath}, std::move(name_from_path(_filepath)), _tool, _primary, _secondary,
+          _parent)
+{
+}
+
 editor::editor(image&& _image, QString&& _path, QString&& _name, tool* const* _tool, QColor const* _primary,
     QColor const* _secondary, QWidget* _parent)
     : QWidget(_parent),
