@@ -34,6 +34,7 @@ private:
     create_file_dialog* create_fd_ = nullptr;
     QFileDialog* open_fd_ = nullptr;
     QMessageBox* message_box_ = nullptr;
+    palette_tab* palette_tab_ = nullptr;
 
     QMenu* file_menu_ = nullptr;
     QAction* create_ = nullptr;
@@ -53,7 +54,6 @@ private:
     QAction* zoom_out_ = nullptr;
     QAction* default_zoom_ = nullptr;
     palette_action* palette_toggle_ = nullptr;
-    palette_tab* palette_tab_ = nullptr;
 
     QMenu* tool_menu_ = nullptr;
 

@@ -5,19 +5,16 @@
 
 namespace
 {
-QIcon icon_from_atlas(const QPixmap& _atlas, const std::initializer_list<std::pair<QIcon::Mode, QIcon::State>>& _modes)
-{
-    QIcon result;
-    const auto dim = _atlas.height();
-    for (int shift = 0; auto [mode, state] : _modes)
-        result.addPixmap(_atlas.copy(dim * (shift++), 0, dim, dim), mode, state);
-    return result;
-}
-
 QAction* make_tool_action(
     QAction* _target, const QKeySequence& _shortcut, const QString& _atlas, mytec::tool::type _type)
 {
-    auto icon = icon_from_atlas(_atlas, {{QIcon::Normal, QIcon::Off}, {QIcon::Normal, QIcon::On}});
+    QIcon icon;
+    {
+        const auto atlas = QPixmap{_atlas};
+        const auto h = atlas.height();
+        icon.addPixmap(atlas.copy(0, 0, h, h), QIcon::Normal, QIcon::Off);
+        icon.addPixmap(atlas.copy(h, 0, h, h), QIcon::Normal, QIcon::On);
+    }
     _target->setIcon(icon);
     _target->setIconVisibleInMenu(false);
     _target->setShortcut(_shortcut);
@@ -34,10 +31,13 @@ main_window::main_window()
       status_bar_(new QLabel),
       create_fd_(new create_file_dialog(this)),
       open_fd_(new QFileDialog(this, "Choose file to open", {}, "*.png")),
-      message_box_(new QMessageBox(QMessageBox::Icon::Information, {}, {}, QMessageBox::StandardButton::Ok, this))
+      message_box_(new QMessageBox(QMessageBox::Icon::Information, {}, {}, QMessageBox::StandardButton::Ok, this)),
+      palette_tab_(new palette_tab(this)),
+      palette_toggle_(new palette_action(this)),
+      tool_group_(new QActionGroup(this))
 {
     setWindowTitle("Mytec");
-    setMinimumSize(480, 320);
+    setMinimumSize(800, 600);
     setWindowIcon(QIcon{":/assets/logo-128.png"});
 
     open_fd_->setWindowTitle("Choose file to open...");
@@ -48,9 +48,11 @@ main_window::main_window()
     create_actions_menus();
     setCentralWidget(canv_);
 
+    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, palette_tab_);
+
     connect(create_fd_, &create_file_dialog::confirmed, canv_, &canvas::create_image);
     connect(canv_, &canvas::changed, this, &main_window::on_active_editor_changed);
-    connect(canv_, &canvas::failed, [this](const QString &_msg) { show_message(_msg); });
+    connect(canv_, &canvas::failed, [this](const QString& _msg) { show_message(_msg); });
     connect(canv_, &canvas::exit_prepared, this, &main_window::close);
     statusBar()->addWidget(status_bar_);
 
@@ -129,17 +131,13 @@ void main_window::create_actions_menus()
 #undef Y
 #undef X
 
-    tool_group_ = new QActionGroup(this);
     view_ = make_tool_action(tool_group_->addAction("View"), {"W"}, ":/assets/icons/view.png", tool::view);
     pen_ = make_tool_action(tool_group_->addAction("Pen"), {"D"}, ":/assets/icons/pen.png", tool::pen);
     connect(tool_group_, &QActionGroup::triggered,
         [this](QAction* _act) { canv_->on_tool_chosen(qvariant_cast<tool::type>(_act->data())); });
     view_->trigger();
 
-    palette_toggle_ = new palette_action(this);
-    palette_tab_ = new palette_tab(this);
     connect(canv_, &canvas::colors_changed, palette_toggle_, &palette_action::change_colors);
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, palette_tab_);
     connect(palette_toggle_, &palette_action::toggled, palette_tab_, &palette_tab::setVisible);
     connect(palette_tab_, &palette_tab::visibilityChanged, palette_toggle_, &palette_action::setChecked);
 
