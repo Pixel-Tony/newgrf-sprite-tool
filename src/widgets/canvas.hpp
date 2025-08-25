@@ -59,7 +59,7 @@ private:
     QColor secondary_ = qRgb(0, 0, 255);
     tool* tool_ = nullptr;
 
-    QFileDialog* file_picker_;
+    QFileDialog* save_as_fd_;
     QMetaObject::Connection fp_conn_;
 
     save_file_dialog* save_file_dialog_;

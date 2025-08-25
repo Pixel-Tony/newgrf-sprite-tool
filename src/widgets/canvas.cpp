@@ -5,19 +5,18 @@
 namespace
 {
 const auto err_could_not_save = "Couldn't save the image.";
-const auto err_file_already_open = "File is already open in the editor.";
 } // namespace
 
 namespace mytec
 {
 canvas::canvas(QWidget* _parent)
     : QTabWidget(_parent),
-      file_picker_(new QFileDialog(this, "Choose file", {}, "*.png")),
+      save_as_fd_(new QFileDialog(this, "Choose file", {}, "*.png")),
       save_file_dialog_(new save_file_dialog(this))
 {
-    file_picker_->setWindowTitle("Choose file to open");
-    file_picker_->setNameFilter("Image Files (*.png)");
-    file_picker_->setAcceptMode(QFileDialog::AcceptSave);
+    save_as_fd_->setWindowTitle("Choose file to save as");
+    save_as_fd_->setNameFilter("Image Files (*.png)");
+    save_as_fd_->setAcceptMode(QFileDialog::AcceptSave);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setContentsMargins({});
@@ -96,12 +95,12 @@ void canvas::save()
 void canvas::save_as(editor* _ed)
 {
     disconnect(fp_conn_);
-    fp_conn_ = connect(file_picker_, &QFileDialog::accepted,
-        [this, _ed] { fd_on_accepted(file_picker_->selectedFiles().data(), _ed); });
+    fp_conn_ = connect(save_as_fd_, &QFileDialog::accepted,
+        [this, _ed] { fd_on_accepted(save_as_fd_->selectedFiles().data(), _ed); });
 
     if (_ed->exists())
-        file_picker_->setDirectory(_ed->path());
-    file_picker_->open();
+        save_as_fd_->setDirectory(_ed->path());
+    save_as_fd_->open();
 }
 
 void canvas::save_as()
@@ -229,7 +228,7 @@ void canvas::fd_on_accepted(const QString* _path, editor* _ed, bool _close, bool
     {
         if (is_path_occupied(*_path, _ed))
         {
-            emit failed(err_file_already_open);
+            emit failed("File is already open in the editor.");
             return;
         }
         if (!_ed->save(*_path))

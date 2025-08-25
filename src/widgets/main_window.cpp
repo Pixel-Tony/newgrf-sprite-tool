@@ -32,7 +32,7 @@ namespace mytec
 main_window::main_window()
     : canv_(new canvas),
       status_bar_(new QLabel),
-      create_file_dialog_(new create_file_dialog(this)),
+      create_fd_(new create_file_dialog(this)),
       open_fd_(new QFileDialog(this, "Choose file to open", {}, "*.png")),
       message_box_(new QMessageBox(QMessageBox::Icon::Information, {}, {}, QMessageBox::StandardButton::Ok, this))
 {
@@ -48,7 +48,7 @@ main_window::main_window()
     create_actions_menus();
     setCentralWidget(canv_);
 
-    connect(create_file_dialog_, &create_file_dialog::confirmed, canv_, &canvas::create_image);
+    connect(create_fd_, &create_file_dialog::confirmed, canv_, &canvas::create_image);
     connect(canv_, &canvas::changed, this, &main_window::on_active_editor_changed);
     connect(canv_, &canvas::failed, [this](const QString &_msg) { show_message(_msg); });
     connect(canv_, &canvas::exit_prepared, this, &main_window::close);
@@ -103,7 +103,7 @@ void main_window::create_actions_menus()
 #define Y(_v) QKeySequence::_v
 
     file_menu_ = menuBar()->addMenu("File");
-    create_ = file_menu_->addAction(X(DocumentNew), "New...", Y(New), create_file_dialog_, &create_file_dialog::open);
+    create_ = file_menu_->addAction(X(DocumentNew), "New...", Y(New), create_fd_, &create_file_dialog::open);
     file_menu_->addSeparator();
     open_ = file_menu_->addAction(X(DocumentOpen), "Open...", Y(Open), open_fd_, qOverload<>(&QFileDialog::open));
     file_menu_->addSeparator();
@@ -133,7 +133,7 @@ void main_window::create_actions_menus()
     view_ = make_tool_action(tool_group_->addAction("View"), {"W"}, ":/assets/icons/view.png", tool::view);
     pen_ = make_tool_action(tool_group_->addAction("Pen"), {"D"}, ":/assets/icons/pen.png", tool::pen);
     connect(tool_group_, &QActionGroup::triggered,
-        [this](auto* _act) { canv_->on_tool_chosen(qvariant_cast<tool::type>(_act->data())); });
+        [this](QAction* _act) { canv_->on_tool_chosen(qvariant_cast<tool::type>(_act->data())); });
     view_->trigger();
 
     palette_toggle_ = new palette_action(this);

@@ -31,7 +31,7 @@ private:
 
     canvas* canv_ = nullptr;
     QLabel* status_bar_ = nullptr;
-    create_file_dialog* create_file_dialog_ = nullptr;
+    create_file_dialog* create_fd_ = nullptr;
     QFileDialog* open_fd_ = nullptr;
     QMessageBox* message_box_ = nullptr;
 
