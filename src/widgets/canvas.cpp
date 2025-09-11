@@ -35,11 +35,7 @@ canvas::canvas(QWidget* _parent)
 
 canvas::~canvas() { delete tool_; }
 
-void canvas::bootstrap()
-{
-    emit changed(nullptr);
-    emit colors_changed(primary_, secondary_);
-}
+void canvas::bootstrap() { emit changed(nullptr); }
 
 void canvas::add_editor(editor* const _ed)
 {
@@ -95,8 +91,8 @@ void canvas::save()
 void canvas::save_as(editor* _ed)
 {
     disconnect(fp_conn_);
-    fp_conn_ = connect(save_as_fd_, &QFileDialog::accepted,
-        [this, _ed] { fd_on_accepted(save_as_fd_->selectedFiles().data(), _ed); });
+    fp_conn_ = connect(
+        save_as_fd_, &QFileDialog::accepted, [this, _ed] { fd_on_accepted(save_as_fd_->selectedFiles().data(), _ed); });
 
     if (_ed->exists())
         save_as_fd_->setDirectory(_ed->path());
@@ -172,12 +168,10 @@ void canvas::redo()
         h->redo();
 }
 
-void canvas::swap_colors()
+void canvas::update_colors(QColor _primary, QColor _secondary)
 {
-    const auto tmp = primary_;
-    primary_ = secondary_;
-    secondary_ = tmp;
-    emit colors_changed(primary_, secondary_);
+    primary_ = _primary;
+    secondary_ = _secondary;
 }
 
 void canvas::zoom_in()

@@ -4,3 +4,9 @@
 .tertiary_ = #468C4D ;      // dark lime green
 .background_ = #1D1D26 ;    // very dark gray
 */
+
+mytec--palette_tab QLabel {
+    color: #bbb;
+    font-family: monospace;
+    qproperty-alignment: AlignCenter;
+}

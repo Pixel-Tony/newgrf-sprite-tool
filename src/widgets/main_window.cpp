@@ -59,6 +59,7 @@ main_window::main_window()
 
     load_gui_state();
     canv_->bootstrap();
+    palette_tab_->bootstrap();
 }
 
 void main_window::exit()
@@ -112,6 +113,7 @@ void main_window::on_active_editor_changed(editor* const _editor)
                                   QString::number(w), QString::number(h),
                                   QString::number(static_cast<long>(_editor->zoom() * 100)));
         title_text = tr("%0%1 - %2").arg(_editor->name(), dirty_asterisk);
+        palette_tab_->set_palette(palette->type_);
     }
     setWindowTitle(title_text.arg(QApplication::applicationDisplayName()));
     status_bar_->setText(status_bar_text);
@@ -145,7 +147,7 @@ void main_window::create_actions_menus()
     undo_ = edit_menu_->addAction(X(EditUndo), "Undo", Y(Undo), canv_, &canvas::undo);
     redo_ = edit_menu_->addAction(X(EditRedo), "Redo", Y(Redo), canv_, &canvas::redo);
     edit_menu_->addSeparator();
-    edit_menu_->addAction("Swap Pen Colors", QKeySequence{"X"}, canv_, &canvas::swap_colors);
+    edit_menu_->addAction("Swap Pen Colors", QKeySequence{"X"}, palette_tab_, &palette_tab::swap_colors);
 
     view_menu_ = menuBar()->addMenu("View");
     zoom_in_ = view_menu_->addAction(X(ZoomIn), "Zoom In", Y(ZoomIn), canv_, &canvas::zoom_in);
@@ -162,7 +164,8 @@ void main_window::create_actions_menus()
         [this](QAction* _act) { canv_->choose_tool(qvariant_cast<tool::type>(_act->data())); });
     view_->trigger();
 
-    connect(canv_, &canvas::colors_changed, palette_toggle_, &palette_action::change_colors);
+    connect(palette_tab_, &palette_tab::colors_updated, palette_toggle_, &palette_action::change_colors);
+    connect(palette_tab_, &palette_tab::colors_updated, canv_, &canvas::update_colors);
     connect(palette_toggle_, &palette_action::toggled, palette_tab_, &palette_tab::setVisible);
     connect(palette_tab_, &palette_tab::visibilityChanged, palette_toggle_, &palette_action::setChecked);
 

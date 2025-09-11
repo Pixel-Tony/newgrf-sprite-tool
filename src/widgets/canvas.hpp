@@ -24,8 +24,6 @@ public:
 signals:
     void changed(editor* _editor);
     void failed(const QString& _message);
-    void colors_changed(QColor _primary, QColor _secondary);
-
     void exit_prepared();
 
 public slots:
@@ -38,7 +36,7 @@ public slots:
 
     void undo();
     void redo();
-    void swap_colors();
+    void update_colors(QColor _primary, QColor _secondary);
 
     void zoom_in();
     void zoom_out();
