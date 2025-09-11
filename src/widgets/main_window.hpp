@@ -23,7 +23,6 @@ protected:
 
 private slots:
     void on_active_editor_changed(editor* _editor);
-    void on_tool_active_changed(bool _engaged);
 
 private:
     void show_message(const QString& _message, QMessageBox::Icon _icon = QMessageBox::Warning);

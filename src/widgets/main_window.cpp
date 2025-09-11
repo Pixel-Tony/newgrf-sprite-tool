@@ -5,9 +5,10 @@
 
 namespace
 {
-QAction* make_tool_action(
-    QAction* _target, const QKeySequence& _shortcut, const QString& _atlas, mytec::tool::type _type)
+QAction* make_tool_action(QActionGroup* _group, const QString& _name, const QKeySequence& _shortcut,
+    const QString& _atlas, mytec::tool::type _type)
 {
+    auto* const _target = _group->addAction(_name);
     QIcon icon;
     {
         const auto atlas = QPixmap{_atlas};
@@ -90,8 +91,6 @@ void main_window::on_active_editor_changed(editor* const _editor)
     status_bar_->setText(text);
 }
 
-void main_window::on_tool_active_changed(bool _engaged) { menuBar()->setDisabled(_engaged); }
-
 void main_window::show_message(const QString& _message, QMessageBox::Icon _icon)
 {
     message_box_->setIcon(_icon);
@@ -131,8 +130,8 @@ void main_window::create_actions_menus()
 #undef Y
 #undef X
 
-    view_ = make_tool_action(tool_group_->addAction("View"), {"W"}, ":/assets/icons/view.png", tool::view);
-    pen_ = make_tool_action(tool_group_->addAction("Pen"), {"D"}, ":/assets/icons/pen.png", tool::pen);
+    view_ = make_tool_action(tool_group_, "View", {"W"}, ":/assets/icons/view.png", tool::view);
+    pen_ = make_tool_action(tool_group_, "Pen", {"D"}, ":/assets/icons/pen.png", tool::pen);
     connect(tool_group_, &QActionGroup::triggered,
         [this](QAction* _act) { canv_->on_tool_chosen(qvariant_cast<tool::type>(_act->data())); });
     view_->trigger();
