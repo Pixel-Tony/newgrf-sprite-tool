@@ -13,7 +13,6 @@ int mytec_main(int _argc, char** _argv)
     QApplication::setDesktopFileName("Mytec");
     QApplication::setApplicationDisplayName("Mytec");
     QApplication app{_argc, _argv};
-    QApplication::font().setPixelSize(12);
     mytec::main_window win;
 
 #ifdef QT_DEBUG
@@ -37,7 +36,7 @@ int mytec_main(int _argc, char** _argv)
     }
 #endif
 
-    win.show();
+    win.showMaximized();
 
     return QApplication::exec();
 }
