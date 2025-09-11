@@ -151,7 +151,6 @@ bool canvas::try_exit()
             save_file_dialog_->open(ed->name(), ed->path());
         return false;
     }
-    emit exit_prepared();
     return true;
 }
 
@@ -241,7 +240,7 @@ void canvas::fd_on_accepted(const QString* _path, editor* _ed, bool _close, bool
         return;
     save_file_dialog_->close();
     close_editor(_ed);
-    if (_try_exit)
-        try_exit();
+    if (_try_exit && try_exit())
+        emit exit_prepared();
 }
 } // namespace mytec

@@ -25,8 +25,11 @@ private slots:
     void on_active_editor_changed(editor* _editor);
 
 private:
+    void load_gui_state();
+    void write_gui_state();
     void show_message(const QString& _message, QMessageBox::Icon _icon = QMessageBox::Warning);
     void create_actions_menus();
+    void exit();
 
     canvas* canv_ = nullptr;
     QLabel* status_bar_ = nullptr;

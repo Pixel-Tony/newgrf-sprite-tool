@@ -54,13 +54,38 @@ main_window::main_window()
     connect(create_fd_, &create_file_dialog::confirmed, canv_, &canvas::create_image);
     connect(canv_, &canvas::changed, this, &main_window::on_active_editor_changed);
     connect(canv_, &canvas::failed, [this](const QString& _msg) { show_message(_msg); });
-    connect(canv_, &canvas::exit_prepared, this, &main_window::close);
+    connect(canv_, &canvas::exit_prepared, this, &main_window::exit);
     statusBar()->addWidget(status_bar_);
 
+    load_gui_state();
     canv_->bootstrap();
 }
 
-void main_window::closeEvent(QCloseEvent* _ev) { _ev->setAccepted(canv_->try_exit()); }
+void main_window::exit()
+{
+    write_gui_state();
+    close();
+}
+
+void main_window::load_gui_state()
+{
+    QSettings settings;
+    palette_tab_->setVisible(settings.value("paletteTab/visible", false).toBool());
+}
+
+void main_window::write_gui_state()
+{
+    QSettings settings;
+    settings.setValue("paletteTab/visible", palette_tab_->isVisible());
+}
+
+void main_window::closeEvent(QCloseEvent* _ev)
+{
+    bool will_exit = canv_->try_exit();
+    if (will_exit)
+        write_gui_state();
+    _ev->setAccepted(will_exit);
+}
 
 void main_window::on_active_editor_changed(editor* const _editor)
 {

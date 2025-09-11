@@ -8,6 +8,10 @@ using namespace mytec;
 
 int mytec_main(int _argc, char** _argv)
 {
+    QApplication::setOrganizationName("Tony Pixel");
+    QApplication::setApplicationName("Mytec");
+    QApplication::setDesktopFileName("Mytec");
+    QApplication::setApplicationDisplayName("Mytec");
     QApplication app{_argc, _argv};
     QApplication::font().setPixelSize(12);
     mytec::main_window win;
