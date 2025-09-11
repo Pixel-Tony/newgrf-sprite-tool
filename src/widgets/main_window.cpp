@@ -99,21 +99,22 @@ void main_window::on_active_editor_changed(editor* const _editor)
     undo_->setEnabled(enabled && _editor->history()->canUndo());
     redo_->setEnabled(enabled && _editor->history()->canRedo());
 
-    QString text;
+    QString status_bar_text;
+    QString title_text = "%0";
     if (enabled)
     {
         const auto& img = _editor->get_image();
         const auto [w, h] = img.size();
+        const char dirty_asterisk = "* "[_editor->history()->isClean()];
         const auto* const palette = img.get_palette();
-        text = QString("%0%1 (%2) | %3x%4 | %5%")
-                   .arg(ellipsis(_editor->name(), 50))
-                   .arg("* "[_editor->history()->isClean()])
-                   .arg(palette ? palette->name() : "32bpp")
-                   .arg(w)
-                   .arg(h)
-                   .arg(static_cast<int>(_editor->zoom() * 100));
+        status_bar_text = tr("%0%1 (%2) | %3x%4 | %5%")
+                              .arg(ellipsis(_editor->name(), 50), dirty_asterisk, palette ? palette->name() : "32bpp",
+                                  QString::number(w), QString::number(h),
+                                  QString::number(static_cast<long>(_editor->zoom() * 100)));
+        title_text = tr("%0%1 - %2").arg(_editor->name(), dirty_asterisk);
     }
-    status_bar_->setText(text);
+    setWindowTitle(title_text.arg(QApplication::applicationDisplayName()));
+    status_bar_->setText(status_bar_text);
 }
 
 void main_window::show_message(const QString& _message, QMessageBox::Icon _icon)
