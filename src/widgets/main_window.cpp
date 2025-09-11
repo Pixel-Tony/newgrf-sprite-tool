@@ -104,22 +104,22 @@ void main_window::create_actions_menus()
 #define Y(_v) QKeySequence::_v
 
     file_menu_ = menuBar()->addMenu("File");
-    create_ = file_menu_->addAction(X(DocumentNew), "New...", Y(New), create_fd_, &create_file_dialog::open);
+    file_menu_->addAction(X(DocumentNew), "New...", Y(New), create_fd_, &create_file_dialog::open);
     file_menu_->addSeparator();
-    open_ = file_menu_->addAction(X(DocumentOpen), "Open...", Y(Open), open_fd_, qOverload<>(&QFileDialog::open));
+    file_menu_->addAction(X(DocumentOpen), "Open...", Y(Open), open_fd_, qOverload<>(&QFileDialog::open));
     file_menu_->addSeparator();
     save_ = file_menu_->addAction(X(DocumentSave), "Save", Y(Save), canv_, &canvas::save);
     save_as_ = file_menu_->addAction(X(DocumentSaveAs), "Save As...", Y(SaveAs), canv_, qOverload<>(&canvas::save_as));
     file_menu_->addSeparator();
     close_ = file_menu_->addAction(X(WindowClose), "Close", Y(Close), canv_, &canvas::close_image);
     file_menu_->addSeparator();
-    exit_ = file_menu_->addAction(X(ApplicationExit), "Exit", Y(Quit), canv_, &canvas::try_exit);
+    file_menu_->addAction(X(ApplicationExit), "Exit", Y(Quit), canv_, &canvas::try_exit);
 
     edit_menu_ = menuBar()->addMenu("Edit");
     undo_ = edit_menu_->addAction(X(EditUndo), "Undo", Y(Undo), canv_, &canvas::undo);
     redo_ = edit_menu_->addAction(X(EditRedo), "Redo", Y(Redo), canv_, &canvas::redo);
     edit_menu_->addSeparator();
-    swap_colors_ = edit_menu_->addAction("Swap Pen Colors", QKeySequence{"X"}, canv_, &canvas::swap_colors);
+    edit_menu_->addAction("Swap Pen Colors", QKeySequence{"X"}, canv_, &canvas::swap_colors);
 
     view_menu_ = menuBar()->addMenu("View");
     zoom_in_ = view_menu_->addAction(X(ZoomIn), "Zoom In", Y(ZoomIn), canv_, &canvas::zoom_in);
@@ -133,7 +133,7 @@ void main_window::create_actions_menus()
     view_ = make_tool_action(tool_group_, "View", {"W"}, ":/assets/icons/view.png", tool::view);
     pen_ = make_tool_action(tool_group_, "Pen", {"D"}, ":/assets/icons/pen.png", tool::pen);
     connect(tool_group_, &QActionGroup::triggered,
-        [this](QAction* _act) { canv_->on_tool_chosen(qvariant_cast<tool::type>(_act->data())); });
+        [this](QAction* _act) { canv_->choose_tool(qvariant_cast<tool::type>(_act->data())); });
     view_->trigger();
 
     connect(canv_, &canvas::colors_changed, palette_toggle_, &palette_action::change_colors);

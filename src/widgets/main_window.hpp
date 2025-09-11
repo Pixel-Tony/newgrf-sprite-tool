@@ -36,17 +36,13 @@ private:
     palette_tab* palette_tab_ = nullptr;
 
     QMenu* file_menu_ = nullptr;
-    QAction* create_ = nullptr;
-    QAction* open_ = nullptr;
     QAction* save_ = nullptr;
     QAction* save_as_ = nullptr;
     QAction* close_ = nullptr;
-    QAction* exit_ = nullptr;
 
     QMenu* edit_menu_ = nullptr;
     QAction* undo_ = nullptr;
     QAction* redo_ = nullptr;
-    QAction* swap_colors_ = nullptr;
 
     QMenu* view_menu_ = nullptr;
     QAction* zoom_in_ = nullptr;

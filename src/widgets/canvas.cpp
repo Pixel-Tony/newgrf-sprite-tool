@@ -199,7 +199,7 @@ void canvas::default_zoom()
         ed->default_zoom();
 }
 
-void canvas::on_tool_chosen(const tool::type _type)
+void canvas::choose_tool(const tool::type _type)
 {
     if (tool_ && tool_->type_ == _type)
         return;

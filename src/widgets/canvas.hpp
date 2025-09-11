@@ -44,7 +44,7 @@ public slots:
     void zoom_out();
     void default_zoom();
 
-    void on_tool_chosen(tool::type _type);
+    void choose_tool(tool::type _type);
 
 private:
     void add_editor(editor* _ed);
