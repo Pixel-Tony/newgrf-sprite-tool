@@ -95,7 +95,7 @@ void editor::paintEvent(QPaintEvent*)
 void editor::wheelEvent(QWheelEvent* _ev)
 {
     _ev->accept();
-    const auto d = 2 * (_ev->angleDelta().y() > 0) - 1;
+    const auto d = (2 * (_ev->angleDelta().y() > 0) - 1) * (zoom_ >= (zoom_bounds.second / 2) ? 2 : 1);
     const auto p = _ev->position().toPoint();
     apply_zoom_delta(d, p);
 }
@@ -163,7 +163,7 @@ void editor::apply_zoom_delta(const float _delta, const QPoint _center)
     const auto new_zoom = std::clamp(zoom_ + _delta, zoom_bounds.first, zoom_bounds.second);
     if (new_zoom == zoom_)
         return;
-    position_ = (position_ * new_zoom - _center * _delta) / zoom_; // a homothety with given center
+    position_ = (position_ - _center) * (new_zoom / zoom_) + _center; // a homothety with given center
     zoom_ = new_zoom;
     emit changed();
 }
