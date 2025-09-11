@@ -15,7 +15,7 @@ image::image(const QString& _filepath) : QImage(_filepath, "png"), palette_(pale
         convertTo(Format_ARGB32);
 }
 
-bool image::setPixelColor(QPoint& _point, QColor& _color)
+bool image::setPixelColor(const QPoint& _point, const QColor& _color)
 {
     if (palette_ && !palette_->has(_color))
         return false;

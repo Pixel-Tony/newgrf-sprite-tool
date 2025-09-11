@@ -16,7 +16,7 @@ public:
 
     [[nodiscard]] const palette* get_palette() const noexcept;
 
-    bool setPixelColor(QPoint& _point, QColor& _color);
+    bool setPixelColor(const QPoint& _point, const QColor& _color);
 
     bool save_with_palette(const QString& _filepath, const char* _format = nullptr);
 
