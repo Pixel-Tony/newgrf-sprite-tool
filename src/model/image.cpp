@@ -25,8 +25,9 @@ bool image::setPixelColor(const QPoint& _point, const QColor& _color)
 
 bool image::save_with_palette(const QString& _filepath, const char* _format)
 {
-    QImage out = palette_ == nullptr ? *this : convertToFormat(Format_Indexed8, palette_->contents());
-    return out.save(_filepath, _format);
+    if (palette_ == nullptr)
+        return save(_filepath, _format);
+    return convertToFormat(QImage::Format_Indexed8, palette_->contents()).save(_filepath, _format);
 }
 
 const palette* image::get_palette() const noexcept { return palette_; }
