@@ -107,7 +107,7 @@ void main_window::on_active_editor_changed(editor* const _editor)
                                   QString::number(w), QString::number(h),
                                   QString::number(static_cast<long>(_editor->zoom() * 100)));
         title_text = tr("%0%1 - %2").arg(_editor->name(), dirty_asterisk);
-        palette_tab_->set_palette(palette->type_);
+        palette_tab_->set_palette(palette ? palette->type_ : palette::none);
     }
     setWindowTitle(title_text.arg(QApplication::applicationDisplayName()));
     status_bar_->setText(status_bar_text);
