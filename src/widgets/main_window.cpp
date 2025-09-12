@@ -54,18 +54,12 @@ main_window::main_window()
     connect(create_fd_, &create_file_dialog::confirmed, canv_, &canvas::create_image);
     connect(canv_, &canvas::changed, this, &main_window::on_active_editor_changed);
     connect(canv_, &canvas::failed, [this](const QString& _msg) { show_message(_msg); });
-    connect(canv_, &canvas::exit_prepared, this, &main_window::exit);
+    connect(canv_, &canvas::exit_prepared, this, &main_window::close);
     statusBar()->addWidget(status_bar_);
 
     load_gui_state();
     canv_->bootstrap();
     palette_tab_->bootstrap();
-}
-
-void main_window::exit()
-{
-    write_gui_state();
-    close();
 }
 
 void main_window::load_gui_state()
@@ -141,7 +135,7 @@ void main_window::create_actions_menus()
     file_menu_->addSeparator();
     close_ = file_menu_->addAction(X(WindowClose), "Close", Y(Close), canv_, &canvas::close_image);
     file_menu_->addSeparator();
-    file_menu_->addAction(X(ApplicationExit), "Exit", Y(Quit), canv_, &canvas::try_exit);
+    file_menu_->addAction(X(ApplicationExit), "Exit", Y(Quit), this, &main_window::close);
 
     edit_menu_ = menuBar()->addMenu("Edit");
     undo_ = edit_menu_->addAction(X(EditUndo), "Undo", Y(Undo), canv_, &canvas::undo);

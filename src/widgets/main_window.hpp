@@ -29,7 +29,6 @@ private:
     void write_gui_state();
     void show_message(const QString& _message, QMessageBox::Icon _icon = QMessageBox::Warning);
     void create_actions_menus();
-    void exit();
 
     canvas* canv_ = nullptr;
     QLabel* status_bar_ = nullptr;
