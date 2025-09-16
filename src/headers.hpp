@@ -4,5 +4,6 @@
 #include <QtCore>
 #include <QtGui>
 #include <QtWidgets>
+#include <QOpenGLWidget>
 
 #endif // MYTEC_HEADERS_HPP

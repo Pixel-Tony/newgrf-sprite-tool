@@ -6,7 +6,7 @@ project(mytec
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt6 6.9.1 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt6 6.9.1 REQUIRED COMPONENTS Core Gui Widgets OpenGLWidgets)
 
 qt_standard_project_setup()
 qt_add_executable(mytec-executable
@@ -53,7 +53,7 @@ set_target_properties(mytec-executable PROPERTIES
 
 target_include_directories(mytec-executable PRIVATE src)
 target_precompile_headers(mytec-executable PRIVATE src/headers.hpp)
-target_link_libraries(mytec-executable PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
+target_link_libraries(mytec-executable PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::OpenGLWidgets)
 
 target_compile_options(mytec-executable
   PRIVATE $<$<STREQUAL:CMAKE_CXX_COMPILER_ID,MSVC>:"/W4 /WX /permissive-">
