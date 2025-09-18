@@ -12,6 +12,8 @@ auto **p_dos = &palettes[palette::dos];
 auto **p_win = &palettes[palette::windows];
 } // namespace
 
+std::size_t std::hash<QColor>::operator()(const QColor &_col) { return _col.rgba(); }
+
 namespace mytec
 {
 const palette *palette::make(palette::type _type)
@@ -53,6 +55,4 @@ palette::palette(const type _type, const QString &_filename, QString &&_name)
     for (int i = 0; auto c : contents_)
         colors_[c] = i++;
 }
-
-bool palette::color_comparer::operator()(QColor _a, QColor _b) const { return _a.rgba() < _b.rgba(); }
 } // namespace mytec

@@ -2,7 +2,12 @@
 #define MYTEC_PALETTE_HPP
 
 #include <headers.hpp>
-#include <map>
+
+template <>
+struct std::hash<QColor>
+{
+    std::size_t operator()(const QColor &_col);
+};
 
 namespace mytec
 {
@@ -29,16 +34,11 @@ public:
     const type type_;
 
 private:
-    struct color_comparer
-    {
-        bool operator()(QColor _a, QColor _b) const;
-    };
-
     explicit palette(type _type, const QString &_filename, QString &&_name);
 
     const QString name_;
     QVector<QRgb> contents_;
-    std::map<QColor, uint, color_comparer> colors_;
+    QHash<QColor, uint> colors_;
 };
 } // namespace mytec
 
