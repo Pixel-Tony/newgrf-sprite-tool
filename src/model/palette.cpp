@@ -20,8 +20,8 @@ const palette *palette::make(palette::type _type)
 {
     if (*p_dos == nullptr)
     {
-        *p_dos = new palette(type::dos, ":/assets/palette-dos.act", "DOS");
-        *p_win = new palette(type::windows, ":/assets/palette-win.act", "Windows");
+        *p_dos = new palette(type::dos, ":/assets/palette-dos.act", ":/assets/palette-dos-groups.json", "DOS");
+        *p_win = new palette(type::windows, ":/assets/palette-win.act", ":/assets/palette-win-groups.json", "Windows");
     }
     return palettes[_type];
 }
@@ -43,7 +43,7 @@ bool palette::has(QColor _color) const noexcept { return colors_.contains(_color
 
 QColor palette::get(int _x, int _y) const noexcept { return contents_[_y * 16 + _x]; }
 
-palette::palette(const type _type, const QString &_filename, QString &&_name)
+palette::palette(const type _type, const QString &_filename, const QString &_groups_filename, QString &&_name)
     : type_(_type),
       name_(_name),
       contents_(256)
@@ -54,5 +54,43 @@ palette::palette(const type _type, const QString &_filename, QString &&_name)
 
     for (int i = 0; auto c : contents_)
         colors_[c] = i++;
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QResource(_groups_filename).uncompressedData());
+    for (const auto &key : doc.object().keys())
+    {
+        auto arr = doc[key].toArray();
+        uint8_t begin = 0;
+        uint8_t end = 0;
+        switch (arr.count())
+        {
+        case 1:
+            begin = end = arr[0].toString().toUInt(nullptr, 16);
+            break;
+        case 2:
+            begin = arr[0].toString().toUInt(nullptr, 16);
+            end = arr[1].toString().toUInt(nullptr, 16);
+            break;
+        default:
+            throw QJsonParseError();
+        }
+        color_groups_.push_back({QString("Group: %0").arg(key), {begin, end}});
+    }
+}
+
+const QString &palette::color_group(QColor _color) const noexcept
+{
+    static const QString none = "Group: none";
+    static const QString empty = "";
+    if (_color == Qt::transparent)
+        return empty;
+    if (!colors_.contains(_color))
+        return none;
+    const auto ind = colors_.value(_color);
+    for (const auto &[name, bounds] : color_groups_)
+    {
+        if (bounds.first <= ind && ind <= bounds.second)
+            return name;
+    }
+    return none;
 }
 } // namespace mytec

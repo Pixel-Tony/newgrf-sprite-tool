@@ -6,5 +6,7 @@
         <file>assets/pixChicago.ttf</file>
         <file>assets/palette-dos.act</file>
         <file>assets/palette-win.act</file>
+        <file>assets/palette-dos-groups.json</file>
+        <file>assets/palette-win-groups.json</file>
     </qresource>
 </RCC>
