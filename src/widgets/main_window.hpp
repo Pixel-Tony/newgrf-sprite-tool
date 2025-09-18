@@ -50,7 +50,7 @@ private:
     QAction *zoom_in_ = nullptr;
     QAction *zoom_out_ = nullptr;
     QAction *default_zoom_ = nullptr;
-    palette_action *palette_toggle_ = nullptr;
+    palette_action *palette_action_ = nullptr;
 
     QMenu *tool_menu_ = nullptr;
 

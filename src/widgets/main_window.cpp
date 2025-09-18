@@ -34,7 +34,7 @@ main_window::main_window()
       open_fd_(new QFileDialog(this, "Choose file to open", {}, "*.png")),
       message_box_(new QMessageBox(QMessageBox::Icon::Information, {}, {}, QMessageBox::StandardButton::Ok, this)),
       palette_tab_(new palette_tab(this)),
-      palette_toggle_(new palette_action(this)),
+      palette_action_(new palette_action(this)),
       tool_group_(new QActionGroup(this))
 {
     initialize_opengl_context_->hide();
@@ -163,11 +163,11 @@ void main_window::create_actions_menus()
 
     connect(palette_tab_, &palette_tab::color_selected, canv_, &canvas::set_color);
     connect(canv_, &canvas::color_updated, palette_tab_, &palette_tab::set_color);
-    connect(canv_, &canvas::color_updated, palette_toggle_,
-        [this]() { palette_toggle_->set_colors(canv_->color(true), canv_->color(false)); });
+    connect(canv_, &canvas::color_updated, palette_action_,
+        [this]() { palette_action_->set_colors(canv_->color(true), canv_->color(false)); });
 
-    connect(palette_toggle_, &palette_action::toggled, palette_tab_, &palette_tab::setVisible);
-    connect(palette_tab_, &palette_tab::visibilityChanged, palette_toggle_, &palette_action::setChecked);
+    connect(palette_action_, &palette_action::toggled, palette_tab_, &palette_tab::setVisible);
+    connect(palette_tab_, &palette_tab::visibilityChanged, palette_action_, &palette_action::setChecked);
 
     tool_menu_ = menuBar()->addMenu("Tool");
     tool_menu_->addActions(tool_group_->actions());
@@ -177,7 +177,7 @@ void main_window::create_actions_menus()
     tool_bar_->setIconSize(view_->icon().availableSizes()[0]);
     tool_bar_->addActions(tool_group_->actions());
     tool_bar_->addSeparator();
-    tool_bar_->addAction(palette_toggle_);
+    tool_bar_->addAction(palette_action_);
     addToolBar(tool_bar_);
 }
 } // namespace mytec
