@@ -6,6 +6,17 @@ const QSize cell_size = {20, 28};
 const auto gap = 1;
 const auto wg = cell_size.width() + gap;
 const auto hg = cell_size.height() + gap;
+
+QPixmap palette_sprite(const mytec::palette *const _palette)
+{
+    QPixmap result = {gap + 16 * wg, gap + 16 * hg};
+    result.fill(qRgb(40, 40, 40));
+    QPainter painter{&result};
+    for (int y = 0; y < 16; ++y)
+        for (int x = 0; x < 16; ++x)
+            painter.fillRect(QRect{{gap + wg * x, gap + hg * y}, cell_size}, _palette->get(x, y));
+    return result;
+}
 } // namespace
 
 namespace mytec
@@ -33,17 +44,39 @@ void plt_color_frame::set_color(QColor _new)
     color_id_->setText(_new == Qt::transparent ? " * * * " : _new.name());
 }
 
-plt_sprite::plt_sprite(palette::type _type, QWidget *_parent) : QLabel(_parent), palette_(palette::make(_type))
+plt_sprite::plt_sprite(const class palette *const _palette, QWidget *_parent)
+    : QWidget(_parent),
+      palette_(_palette),
+      sprite_(palette_sprite(palette_))
 {
-    QPixmap sprite = {gap + 16 * wg, gap + 16 * hg};
-    sprite.fill(qRgb(40, 40, 40));
-    QPainter painter{&sprite};
-    for (int y = 0; y < 16; ++y)
-        for (int x = 0; x < 16; ++x)
-            painter.fillRect(QRect{{gap + wg * x, gap + hg * y}, ::cell_size}, palette_->get(x, y));
-    setPixmap(sprite);
     setMouseTracking(true);
 }
+
+void plt_sprite::set_color(QColor _color, bool _primary)
+{
+    (_primary ? primary_ : secondary_) = _color;
+    update();
+}
+
+void plt_sprite::paintEvent(QPaintEvent *_ev)
+{
+    QPainter painter{this};
+    painter.drawPixmap(_ev->rect(), sprite_, _ev->rect());
+    for (auto [color, outer] :
+        {QPair<QColor, QColor>{primary_, Qt::white}, {secondary_, Qt::white}, {hovered_color_, qRgb(100, 255, 100)}})
+    {
+        const auto ind = palette_->index(color);
+        if (ind == -1)
+            continue;
+        const auto top_left = QPoint{wg * int(ind % 16), hg * int(ind / 16)};
+        painter.setPen(outer);
+        painter.drawRect(QRect{top_left + QPoint(1, 1), cell_size - QSize{1, 1}});
+        painter.setPen(Qt::black);
+        painter.drawRect(QRect{top_left + QPoint(2, 2), cell_size - QSize{3, 3}});
+    }
+}
+
+QSize plt_sprite::sizeHint() const { return sprite_.size(); }
 
 void plt_sprite::enterEvent(QEnterEvent *_ev) { update_hovered(get_hovered_color(_ev->position())); }
 
@@ -70,10 +103,10 @@ QColor plt_sprite::get_hovered_color(QPointF _p)
     return (qMax(xd, yd) > 15 || qMin(px % wg, py % hg) < gap) ? Qt::transparent : palette_->get(xd, yd);
 }
 
-void plt_sprite::update_hovered(const QColor _col)
+void plt_sprite::update_hovered(const QColor _color)
 {
-    if (_col != hovered_color_)
-        emit color_hovered(hovered_color_ = _col);
+    if (_color != hovered_color_)
+        emit color_hovered(hovered_color_ = _color, palette_->color_group(_color));
 }
 } // namespace priv
 
@@ -84,14 +117,18 @@ palette_tab::palette_tab(QWidget *_parent) : QDockWidget("Palette", _parent), bo
     body_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     for (const auto [type, name] : {std::pair{palette::dos, "DOS"}, {palette::windows, "Windows"}})
     {
-        auto *const sprite = new plt_sprite(type);
-        connect(sprite, &plt_sprite::color_hovered, this, &palette_tab::color_hovered);
+        const auto *const palette = palette::make(type);
+        auto *const sprite = sprites_.emplace_back(new plt_sprite(palette));
+        connect(sprite, &plt_sprite::color_hovered, this, &palette_tab::on_color_hovered);
         connect(sprite, &plt_sprite::color_selected, this, &palette_tab::color_selected);
 
         auto *const primary = primary_frames_.emplace_back(new plt_color_frame);
         auto *const hover = new plt_color_frame;
         auto *const secondary = secondary_frames_.emplace_back(new plt_color_frame);
         connect(this, &palette_tab::color_hovered, hover, &plt_color_frame::set_color);
+
+        auto *const group_label = group_labels_.emplace_back(new QLabel);
+        group_label->setObjectName("groupLabel");
 
         auto *const lyt = new QGridLayout;
         lyt->setContentsMargins(4, 6, 4, 6);
@@ -105,6 +142,7 @@ palette_tab::palette_tab(QWidget *_parent) : QDockWidget("Palette", _parent), bo
         lyt->addWidget(primary, 1, 0);
         lyt->addWidget(hover, 1, 1);
         lyt->addWidget(secondary, 1, 2);
+        lyt->addWidget(group_label, 2, 0, 1, 3);
 
         auto *const tab = new QWidget;
         tab->setLayout(lyt);
@@ -124,5 +162,14 @@ void palette_tab::set_color(QColor _color, bool _primary)
 {
     for (auto *frame : (_primary ? primary_frames_ : secondary_frames_))
         frame->set_color(_color);
+    for (auto *sprite : sprites_)
+        sprite->set_color(_color, _primary);
+}
+
+void palette_tab::on_color_hovered(QColor _color, const QString &_group)
+{
+    for (auto *label : group_labels_)
+        label->setText(_group);
+    emit color_hovered(_color);
 }
 } // namespace mytec

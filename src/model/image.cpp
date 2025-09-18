@@ -17,7 +17,7 @@ image::image(const QString &_filepath) : contents_(_filepath, "png"), palette_(p
 
 bool image::set_pixel_color(const QPoint _point, const QColor _color, QColor *_old)
 {
-    if (palette_ && !palette_->has(_color))
+    if (palette_ && palette_->index(_color) == -1)
     {
         QToolTip::showText(QCursor::pos(), "Color not in the image palette");
         return false;

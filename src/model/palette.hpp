@@ -28,7 +28,7 @@ public:
 
     [[nodiscard]] const QVector<QRgb> &contents() const noexcept;
     [[nodiscard]] const QString &name() const noexcept;
-    [[nodiscard]] bool has(QColor _color) const noexcept;
+    [[nodiscard]] uint index(QColor _color) const noexcept;
     [[nodiscard]] const QString &color_group(QColor _color) const noexcept;
     [[nodiscard]] QColor get(int _x, int _y) const noexcept;
 

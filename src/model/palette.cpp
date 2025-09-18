@@ -39,7 +39,7 @@ const QVector<QRgb> &palette::contents() const noexcept { return contents_; }
 
 const QString &palette::name() const noexcept { return name_; }
 
-bool palette::has(QColor _color) const noexcept { return colors_.contains(_color); }
+uint palette::index(QColor _color) const noexcept { return colors_.value(_color, -1); }
 
 QColor palette::get(int _x, int _y) const noexcept { return contents_[_y * 16 + _x]; }
 

@@ -10,3 +10,7 @@ mytec--palette_tab QLabel {
     font-family: monospace;
     qproperty-alignment: AlignCenter;
 }
+
+mytec--palette_tab QLabel#groupLabel {
+    qproperty-alignment: AlignLeft;
+}
