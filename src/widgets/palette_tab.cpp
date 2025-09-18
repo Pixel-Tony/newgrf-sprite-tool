@@ -2,7 +2,7 @@
 
 namespace
 {
-const QSize cell_size = {18, 24};
+const QSize cell_size = {20, 28};
 const auto gap = 1;
 const auto wg = cell_size.width() + gap;
 const auto hg = cell_size.height() + gap;
