@@ -1,12 +1,13 @@
 #ifndef MYTEC_CANVAS_SCENE_HPP
 #define MYTEC_CANVAS_SCENE_HPP
 
-#include "model/image.hpp"
 #include "model/palette.hpp"
-#include "model/tools/tool.hpp"
 
 namespace mytec
 {
+class image;
+class tool;
+
 class editor : public QGraphicsView
 {
     Q_OBJECT

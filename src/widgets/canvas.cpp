@@ -1,6 +1,9 @@
 #include "canvas.hpp"
 
+#include "model/image.hpp"
 #include "model/tools/tool_factory.hpp"
+#include "widgets/dialogs/save_file_dialog.hpp"
+#include "widgets/editor.hpp"
 
 namespace
 {

@@ -3,8 +3,6 @@
 
 #include "tool.hpp"
 
-#include <headers.hpp>
-
 namespace mytec
 {
 class view final : public tool

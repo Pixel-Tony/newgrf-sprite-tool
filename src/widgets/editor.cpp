@@ -1,5 +1,8 @@
 #include "editor.hpp"
 
+#include "model/image.hpp"
+#include "model/tools/tool.hpp"
+
 namespace
 {
 QString name_from_path(const QString &_path)

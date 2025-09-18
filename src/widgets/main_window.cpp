@@ -1,7 +1,13 @@
 #include "main_window.hpp"
 
+#include "canvas.hpp"
+#include "model/image.hpp"
+#include "model/palette_action.hpp"
+#include "model/tools/tool.hpp"
 #include "palette_tab.hpp"
 #include "util/str.hpp"
+#include "widgets/dialogs/create_file_dialog.hpp"
+#include "widgets/editor.hpp"
 
 namespace
 {

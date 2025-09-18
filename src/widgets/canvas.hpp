@@ -1,15 +1,14 @@
 #ifndef MYTEC_CANVAS_HPP
 #define MYTEC_CANVAS_HPP
 
-#include "dialogs/save_file_dialog.hpp"
-#include "editor.hpp"
 #include "model/palette.hpp"
 #include "model/tools/tool.hpp"
 
-#include <headers.hpp>
-
 namespace mytec
 {
+class save_file_dialog;
+class editor;
+
 class canvas : public QTabWidget
 {
     Q_OBJECT

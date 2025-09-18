@@ -3,8 +3,6 @@
 
 #include "model/palette.hpp"
 
-#include <headers.hpp>
-
 namespace mytec
 {
 class create_file_dialog : public QDialog

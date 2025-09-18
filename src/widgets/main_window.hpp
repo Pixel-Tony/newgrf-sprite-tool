@@ -1,16 +1,16 @@
 #ifndef MYTEC_MAIN_WINDOW_HPP
 #define MYTEC_MAIN_WINDOW_HPP
 
-#include "canvas.hpp"
-#include "dialogs/create_file_dialog.hpp"
-#include "editor.hpp"
-#include "model/palette_action.hpp"
-#include "widgets/palette_tab.hpp"
-
 #include <headers.hpp>
 
 namespace mytec
 {
+class canvas;
+class editor;
+class create_file_dialog;
+class palette_tab;
+class palette_action;
+
 class main_window : public QMainWindow
 {
     Q_OBJECT
