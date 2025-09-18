@@ -4,7 +4,7 @@ namespace mytec
 {
 palette_action::palette_action(QObject* _parent) : QWidgetAction(_parent) { setCheckable(true); }
 
-void palette_action::change_colors(QColor _primary, QColor _secondary)
+void palette_action::set_colors(QColor _primary, QColor _secondary)
 {
     QPixmap pix{{24, 24}};
     pix.fill(Qt::transparent);

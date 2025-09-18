@@ -3,49 +3,41 @@
 #include "model/tools/tool.hpp"
 #include "widgets/editor.hpp"
 
-#include <limits>
-
-namespace
-{
-const QPoint drag_start_none = -QPoint{1, 1} * std::numeric_limits<int>::max();
-}
-
 namespace mytec
 {
-view::view() : tool(tool::view), start_drag_delta_(drag_start_none) {}
+view::view() : tool(tool::view) {}
 
-bool view::event(QEvent& _ev, editor& _editor, image&)
+void view::enter_editor(editor* _editor)
+{
+    if (_editor)
+        _editor->setDragMode(QGraphicsView::ScrollHandDrag);
+}
+
+void view::exit_editor(editor* _editor)
+{
+    if (_editor)
+        _editor->setDragMode(QGraphicsView::NoDrag);
+}
+
+bool view::editor_event(QEvent& _ev, editor&)
 {
     switch (_ev.type())
     {
     case QEvent::MouseButtonPress:
-        start_drag_delta_ = drag_start_none;
-        _ev.setAccepted(Qt::LeftButton == static_cast<QMouseEvent*>(&_ev)->button());
-        if (!_ev.isAccepted())
-            break;
-        _editor.setCursor({Qt::CursorShape::DragMoveCursor});
-        start_drag_delta_ = _editor.image_pos() - QCursor::pos();
-        break;
-
-    case QEvent::MouseMove:
-        _ev.setAccepted(start_drag_delta_ != drag_start_none);
-        if (_ev.isAccepted())
-            _editor.set_image_pos(QCursor::pos() + start_drag_delta_);
+        is_dragging_ = true;
+        _ev.setAccepted(false); // leave for QGraphicsView to handle
         break;
 
     case QEvent::MouseButtonRelease:
-        _ev.setAccepted(start_drag_delta_ != drag_start_none);
-        if (!_ev.isAccepted())
-            break;
-        start_drag_delta_ = drag_start_none;
-        _editor.setCursor({Qt::CursorShape::ArrowCursor});
+        is_dragging_ = false;
+        _ev.setAccepted(false); // leave for QGraphicsView to handle
         break;
 
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
     case QEvent::ShortcutOverride:
     case QEvent::Wheel:
-        _ev.setAccepted(start_drag_delta_ != drag_start_none);
+        _ev.setAccepted(is_dragging_);
         break;
 
     default:

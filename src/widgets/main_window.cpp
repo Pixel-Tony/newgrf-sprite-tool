@@ -37,13 +37,14 @@ main_window::main_window()
       palette_toggle_(new palette_action(this)),
       tool_group_(new QActionGroup(this))
 {
+    initialize_opengl_context_->hide();
     setWindowTitle("Mytec");
     setMinimumSize(800, 600);
     setWindowIcon(QIcon{":/assets/logo-128.png"});
 
-    open_fd_->setWindowTitle("Choose file to open...");
     open_fd_->setNameFilter("Image Files (*.png)");
     open_fd_->setAcceptMode(QFileDialog::AcceptOpen);
+    open_fd_->setModal(true);
     connect(open_fd_, &QFileDialog::accepted, canv_, [this]() { canv_->open_image(open_fd_->selectedFiles()[0]); });
 
     create_actions_menus();
@@ -59,7 +60,6 @@ main_window::main_window()
 
     load_gui_state();
     canv_->bootstrap();
-    palette_tab_->bootstrap();
 }
 
 void main_window::load_gui_state()
@@ -82,12 +82,11 @@ void main_window::closeEvent(QCloseEvent* _ev)
     _ev->setAccepted(will_exit);
 }
 
-void main_window::on_active_editor_changed(editor* const _editor)
+void main_window::on_active_editor_changed(const editor* const _editor)
 {
     const bool enabled = _editor;
     for (auto* a : QList{save_as_, close_, default_zoom_})
         a->setEnabled(enabled);
-
     save_->setEnabled(enabled && (!_editor->exists() || !_editor->history()->isClean()));
     zoom_out_->setEnabled(enabled && _editor->zoom() != editor::zoom_bounds.first);
     zoom_in_->setEnabled(enabled && _editor->zoom() != editor::zoom_bounds.second);
@@ -99,7 +98,7 @@ void main_window::on_active_editor_changed(editor* const _editor)
     if (enabled)
     {
         const auto& img = _editor->get_image();
-        const auto [w, h] = img.size();
+        const auto [w, h] = img.contents().size();
         const char dirty_asterisk = "* "[_editor->history()->isClean()];
         const auto* const palette = img.get_palette();
         status_bar_text = tr("%0%1 (%2) | %3x%4 | %5%")
@@ -141,7 +140,7 @@ void main_window::create_actions_menus()
     undo_ = edit_menu_->addAction(X(EditUndo), "Undo", Y(Undo), canv_, &canvas::undo);
     redo_ = edit_menu_->addAction(X(EditRedo), "Redo", Y(Redo), canv_, &canvas::redo);
     edit_menu_->addSeparator();
-    edit_menu_->addAction("Swap Pen Colors", QKeySequence{"X"}, palette_tab_, &palette_tab::swap_colors);
+    edit_menu_->addAction("Swap Pen Colors", QKeySequence{"X"}, canv_, &canvas::swap_colors);
 
     view_menu_ = menuBar()->addMenu("View");
     zoom_in_ = view_menu_->addAction(X(ZoomIn), "Zoom In", Y(ZoomIn), canv_, &canvas::zoom_in);
@@ -158,8 +157,11 @@ void main_window::create_actions_menus()
         [this](QAction* _act) { canv_->choose_tool(qvariant_cast<tool::type>(_act->data())); });
     view_->trigger();
 
-    connect(palette_tab_, &palette_tab::colors_updated, palette_toggle_, &palette_action::change_colors);
-    connect(palette_tab_, &palette_tab::colors_updated, canv_, &canvas::update_colors);
+    connect(palette_tab_, &palette_tab::color_selected, canv_, &canvas::set_color);
+    connect(canv_, &canvas::color_updated, palette_tab_, &palette_tab::set_color);
+    connect(canv_, &canvas::color_updated, palette_toggle_,
+        [this]() { palette_toggle_->set_colors(canv_->color(true), canv_->color(false)); });
+
     connect(palette_toggle_, &palette_action::toggled, palette_tab_, &palette_tab::setVisible);
     connect(palette_tab_, &palette_tab::visibilityChanged, palette_toggle_, &palette_action::setChecked);
 

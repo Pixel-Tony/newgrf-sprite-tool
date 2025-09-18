@@ -13,7 +13,7 @@ public:
     explicit palette_action(QObject* _parent = nullptr);
 
 public slots:
-    void change_colors(QColor _primary, QColor _secondary);
+    void set_colors(QColor _primary, QColor _secondary);
 };
 } // namespace mytec
 

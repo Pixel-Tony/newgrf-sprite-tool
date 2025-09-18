@@ -9,30 +9,29 @@ namespace mytec
 {
 class pen final : public tool
 {
-public:
-    class command final : public QUndoCommand
+private:
+    struct command final : public QUndoCommand
     {
-    public:
-        command(bool _left_btn, QColor _color, editor* _editor, image* _image);
+        command(QColor _color, image* _image);
 
-        [[nodiscard]] bool is_empty() const noexcept;
         void undo() override;
         void redo() override;
-        void append(QPoint _p, QColor _col);
+        void add_color(QPointF _pos);
 
         const QColor color_;
-
-    private:
-        const bool left_btn_;
-        editor* const editor_;
         image* const image_;
         std::vector<std::pair<QPoint, QColor>> pixels_;
     };
 
+public:
     pen();
     ~pen() override;
 
-    bool event(QEvent& _ev, editor& _editor, image& _image) override;
+    bool editor_event(QEvent& _ev, editor& _editor) override;
+
+    void image_mouse_move_event(QGraphicsSceneMouseEvent& _ev, canvas& _canv, editor& _ed) override;
+    void image_mouse_press_event(QGraphicsSceneMouseEvent& _ev, canvas& _canv, editor& _ed) override;
+    void image_mouse_release_event(QGraphicsSceneMouseEvent& _ev, canvas& _canv, editor& _ed) override;
 
 private:
     command* command_ = nullptr;

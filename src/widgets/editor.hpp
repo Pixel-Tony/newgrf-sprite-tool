@@ -5,37 +5,29 @@
 #include "model/palette.hpp"
 #include "model/tools/tool.hpp"
 
-#include <optional>
-
 namespace mytec
 {
-class editor : public QWidget
+class editor : public QGraphicsView
 {
     Q_OBJECT
 
 public:
-    editor(QString&& _name, QSize _image_size, palette::type _palette, tool* const* _tool, QColor const* _primary,
-        QColor const* _secondary, QWidget* _parent = nullptr);
+    editor(QString&& _name, QSize _image_size, palette::type _palette, QWidget* _parent = nullptr);
 
-    editor(const QString& _filepath, tool* const* _tool, QColor const* _primary, QColor const* _secondary,
-        QWidget* _parent = nullptr);
+    editor(const QString& _filepath, QWidget* _parent = nullptr);
 
     static constexpr QPair<float, float> zoom_bounds = {1, 32};
 
     ~editor() override;
 
+    [[nodiscard]] image& get_image() noexcept;
     [[nodiscard]] const image& get_image() const noexcept;
     [[nodiscard]] const QString& name() const noexcept;
     [[nodiscard]] const QString& path() const noexcept;
     [[nodiscard]] QUndoStack* history() noexcept;
+    [[nodiscard]] const QUndoStack* history() const noexcept;
     [[nodiscard]] bool exists() const noexcept;
     [[nodiscard]] float zoom() const noexcept;
-
-    [[nodiscard]] QColor primary() const noexcept;
-    [[nodiscard]] QColor secondary() const noexcept;
-
-    [[nodiscard]] QPoint image_pos() const noexcept;
-    void set_image_pos(QPoint _pos);
 
     void zoom_in();
     void zoom_out();
@@ -44,33 +36,32 @@ public:
     bool save();
     bool save(const QString& _path);
 
-    [[nodiscard]] std::optional<QPoint> to_image_coords(QPointF _click) const;
-
-    std::optional<QColor> put_pixel(QPoint _coordinate, QColor _color);
-
 signals:
     void changed();
 
 protected:
     bool event(QEvent* _ev) override;
-    void paintEvent(QPaintEvent*) override;
-    void wheelEvent(QWheelEvent* _event) override;
+    void wheelEvent(QWheelEvent* _ev) override;
+
+    void mousePressEvent(QMouseEvent* _ev) override;
+
+    void mouseReleaseEvent(QMouseEvent* _ev) override;
+
+    void mouseMoveEvent(QMouseEvent* _ev) override;
 
 private:
-    editor(image&& _image, QString&& _path, QString&& _name, tool* const* _tool, QColor const* _primary,
-        QColor const* _secondary, QWidget* _parent);
+    editor(image* _image, QString&& _path, QString&& _name, QWidget* _parent);
 
     void apply_zoom_delta(float _delta, QPoint _center);
+    void update_position_scale();
+    [[nodiscard]] int zoom_factor() const noexcept;
 
-    image image_;
+    QGraphicsScene scene_;
+    image* image_;
     QString name_;
     QString path_;
     float zoom_ = 1;
     QPoint position_;
-    bool should_center_ = true;
-    tool* const* const tool_;
-    QColor const* const primary_;
-    QColor const* const secondary_;
 
     QUndoStack* history_;
 };

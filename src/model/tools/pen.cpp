@@ -1,91 +1,94 @@
 #include "pen.hpp"
 
 #include "model/image.hpp"
+#include "widgets/canvas.hpp"
 #include "widgets/editor.hpp"
 
 #include <ranges>
 
 namespace mytec
 {
-pen::command::command(bool _left_btn, QColor _color, editor* _editor, image* _image)
-    : left_btn_(_left_btn),
-      color_(_color),
-      editor_(_editor),
-      image_(_image)
-{
-}
-
-bool pen::command::is_empty() const noexcept { return pixels_.empty(); }
+pen::command::command(QColor _color, image* _image) : color_(_color), image_(_image) {}
 
 void pen::command::undo()
 {
     for (const auto& [pos, old_color] : pixels_)
-        image_->setPixelColor(pos, old_color);
-    editor_->update();
+        (void)image_->set_pixel_color(pos, old_color);
 }
 
 void pen::command::redo()
 {
     for (const auto& pos : pixels_ | std::views::keys)
-        image_->setPixelColor(pos, color_);
-    editor_->update();
+        (void)image_->set_pixel_color(pos, color_);
 }
 
-void pen::command::append(QPoint _p, QColor _col) { pixels_.emplace_back(_p, _col); }
+void pen::command::add_color(QPointF _pos)
+{
+    if (!image_->contains(_pos))
+        return;
+    const auto pixel_pos = QPoint(_pos.x(), _pos.y());
+    QColor old;
+    if (image_->set_pixel_color(pixel_pos, color_, &old))
+        pixels_.emplace_back(pixel_pos, old);
+}
 
 pen::pen() : tool(tool::pen) {}
 
 pen::~pen() { delete command_; }
 
-bool pen::event(QEvent& _ev, editor& _editor, image& _image)
+void pen::image_mouse_move_event(QGraphicsSceneMouseEvent& _ev, canvas&, editor&)
+{
+    _ev.setAccepted(command_);
+    if (command_)
+        command_->add_color(_ev.pos());
+}
+
+void pen::image_mouse_press_event(QGraphicsSceneMouseEvent& _ev, canvas& _canv, editor& _ed)
+{
+    const auto pos = _ev.pos();
+    auto& img = _ed.get_image();
+    if (!img.contains(pos))
+        return;
+
+    QColor color;
+    switch (_ev.button())
+    {
+    case Qt::MiddleButton:
+    {
+        _ev.accept();
+        const auto pixel = img.contents().pixelColor(QPoint(pos.x(), pos.y()));
+        emit _canv.set_color(pixel, true);
+        return;
+    }
+    case Qt::LeftButton:
+        color = _canv.color(true);
+        break;
+    case Qt::RightButton:
+        color = _canv.color(false);
+        break;
+    default:
+        _ev.ignore();
+        return;
+    }
+    command_ = new command(color, &img);
+    command_->add_color(pos);
+    _ev.accept();
+}
+
+void pen::image_mouse_release_event(QGraphicsSceneMouseEvent& _ev, canvas&, editor& _ed)
+{
+    _ev.setAccepted(command_);
+    if (command_ && !command_->pixels_.empty())
+        _ed.history()->push(command_);
+    else
+        delete command_;
+    command_ = nullptr;
+}
+
+bool pen::editor_event(QEvent& _ev, editor&)
 {
     switch (_ev.type())
     {
-    case QEvent::MouseButtonPress:
-    {
-        auto* const mev = static_cast<QMouseEvent*>(&_ev);
-        const auto buttons = mev->buttons();
-        _ev.setAccepted(buttons & (Qt::LeftButton | Qt::RightButton));
-        if (!_ev.isAccepted())
-            break;
-        const auto is_left = buttons & Qt::LeftButton;
-        const auto color = is_left ? _editor.primary() : _editor.secondary();
-        command_ = new command(is_left, color, &_editor, &_image);
-        const auto pixel = _editor.to_image_coords(mev->position());
-        if (!pixel)
-            break;
-        const auto old = _editor.put_pixel(*pixel, command_->color_);
-        if (!old)
-            break;
-        command_->append(*pixel, *old);
-    }
-    break;
-
-    case QEvent::MouseMove:
-    {
-        const auto pos = static_cast<QMouseEvent*>(&_ev)->position();
-        _ev.setAccepted(command_);
-        if (!command_)
-            break;
-        const auto pixel = _editor.to_image_coords(pos);
-        if (!pixel)
-            break;
-        const auto old = _editor.put_pixel(*pixel, command_->color_);
-        if (!old)
-            break;
-        command_->append(*pixel, *old);
-    }
-    break;
-
-    case QEvent::MouseButtonRelease:
-        _ev.setAccepted(command_);
-        if (command_ && !command_->is_empty())
-            _editor.history()->push(command_);
-        else
-            delete command_;
-        command_ = nullptr;
-        break;
-
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
     case QEvent::ShortcutOverride:

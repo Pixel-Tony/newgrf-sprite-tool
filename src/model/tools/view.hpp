@@ -12,10 +12,13 @@ class view final : public tool
 public:
     view();
 
-    bool event(QEvent& _ev, editor& _editor, image& _image) override;
+    bool editor_event(QEvent& _ev, editor& _editor) override;
+
+    void enter_editor(editor* _editor) override;
+    void exit_editor(editor* _editor) override;
 
 private:
-    QPoint start_drag_delta_;
+    bool is_dragging_ = false;
 };
 } // namespace mytec
 

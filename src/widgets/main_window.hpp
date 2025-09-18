@@ -19,10 +19,10 @@ public:
     main_window();
 
 protected:
-    void closeEvent(QCloseEvent*) override;
+    void closeEvent(QCloseEvent* _ev) override;
 
 private slots:
-    void on_active_editor_changed(editor* _editor);
+    void on_active_editor_changed(const editor* _editor);
 
 private:
     void load_gui_state();
@@ -57,6 +57,9 @@ private:
     QActionGroup* tool_group_ = nullptr;
     QAction* view_ = nullptr;
     QAction* pen_ = nullptr;
+
+    // A workaround to avoid initializing context on editor creation
+    QOpenGLWidget* initialize_opengl_context_ = new QOpenGLWidget(this);
 };
 } // namespace mytec
 

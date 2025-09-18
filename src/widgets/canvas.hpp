@@ -21,10 +21,14 @@ public:
 
     void bootstrap();
 
+public:
+    [[nodiscard]] QColor color(bool _primary) const noexcept;
+
 signals:
     void changed(editor* _editor);
     void failed(const QString& _message);
     void exit_prepared();
+    void color_updated(QColor _color, bool _primary);
 
 public slots:
     void create_image(const QString& _name, QSize _size, palette::type _palette);
@@ -36,7 +40,8 @@ public slots:
 
     void undo();
     void redo();
-    void update_colors(QColor _primary, QColor _secondary);
+    void swap_colors();
+    void set_color(QColor _color, bool _primary);
 
     void zoom_in();
     void zoom_out();
@@ -53,15 +58,15 @@ private:
 
     void fd_on_accepted(const QString* _path, editor* _ed, bool _close = false, bool _try_exit = false);
 
-    QColor primary_ = qRgb(255, 255, 255);
-    QColor secondary_ = qRgb(0, 0, 255);
-    tool* tool_ = nullptr;
+    QColor primary_ = Qt::white;
+    QColor secondary_ = Qt::blue;
 
     QFileDialog* save_as_fd_;
     QMetaObject::Connection fp_conn_;
 
     save_file_dialog* save_file_dialog_;
     QMetaObject::Connection sfd_conn_;
+    editor* last_editor_ = nullptr;
 };
 
 } // namespace mytec

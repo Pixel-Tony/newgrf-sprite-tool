@@ -20,9 +20,8 @@ public slots:
     void set_color(QColor _new);
 
 private:
-    QFrame *color_box_;
-    QLabel *color_id_;
-    QColor color_ = Qt::black;
+    QFrame* color_box_;
+    QLabel* color_id_;
 };
 
 class plt_sprite : public QLabel
@@ -48,7 +47,6 @@ private:
     void update_hovered(QColor _color);
 
     const mytec::palette* const palette_;
-    const QPixmap base_;
     QPoint last_press_coords_;
     QColor hovered_color_ = Qt::transparent;
     QColor pressed_color_ = Qt::transparent;
@@ -62,21 +60,18 @@ class palette_tab : public QDockWidget
 public:
     palette_tab(QWidget* _parent = nullptr);
 
-    void bootstrap();
-
 public slots:
     void set_palette(palette::type _type);
-    void swap_colors();
+    void set_color(QColor _color, bool _primary);
 
 signals:
-    void colors_updated(QColor _primary, QColor _secondary);
+    void color_selected(QColor _color, bool _primary);
     void color_hovered(QColor _color);
 
 private:
-    QTabWidget* body_;
-
-    QColor primary_ = Qt::white;
-    QColor secondary_ = Qt::blue;
+    QTabWidget* const body_;
+    QList<priv::plt_color_frame*> primary_frames_;
+    QList<priv::plt_color_frame*> secondary_frames_;
 };
 } // namespace mytec
 
