@@ -10,7 +10,7 @@ const auto save_as_fd_key = "canvas/saveFileDialog/state";
 
 namespace mytec
 {
-canvas::canvas(QWidget* _parent)
+canvas::canvas(QWidget *_parent)
     : QTabWidget(_parent),
       save_as_fd_(new QFileDialog(this, "Choose file", {}, "*.png")),
       save_file_dialog_(new save_file_dialog(this))
@@ -24,9 +24,9 @@ canvas::canvas(QWidget* _parent)
     setContentsMargins({});
 
     connect(this, &canvas::changed,
-        [this](editor* _ed)
+        [this](editor *_ed)
         {
-            auto* t = tool::current;
+            auto *t = tool::current;
             t->exit_editor(last_editor_);
             last_editor_ = _ed;
             t->enter_editor(_ed);
@@ -48,29 +48,29 @@ void canvas::bootstrap()
     emit color_updated(secondary_, false);
 }
 
-void canvas::add_editor(editor* const _ed)
+void canvas::add_editor(editor *const _ed)
 {
     connect(_ed, &editor::changed, [this, _ed] { emit changed(_ed); });
-    const auto& img = _ed->get_image();
+    const auto &img = _ed->get_image();
     connect(&img, &image::mouse_moved, this,
-        [this, _ed](auto& _ev) { tool::current->image_mouse_move_event(_ev, *this, *_ed); });
+        [this, _ed](auto &_ev) { tool::current->image_mouse_move_event(_ev, *this, *_ed); });
     connect(&img, &image::mouse_pressed, this,
-        [this, _ed](auto& _ev) { tool::current->image_mouse_press_event(_ev, *this, *_ed); });
+        [this, _ed](auto &_ev) { tool::current->image_mouse_press_event(_ev, *this, *_ed); });
     connect(&img, &image::mouse_released, this,
-        [this, _ed](auto& _ev) { tool::current->image_mouse_release_event(_ev, *this, *_ed); });
+        [this, _ed](auto &_ev) { tool::current->image_mouse_release_event(_ev, *this, *_ed); });
     setCurrentIndex(addTab(_ed, _ed->name()));
 }
 
-void canvas::create_image(const QString& _name, QSize _size, palette::type _palette)
+void canvas::create_image(const QString &_name, QSize _size, palette::type _palette)
 {
     add_editor(new editor(QString{_name}, _size, _palette));
 }
 
-void canvas::open_image(const QString& _filepath)
+void canvas::open_image(const QString &_filepath)
 {
     for (int i = 0, c = count(); i < c; ++i)
     {
-        if (qobject_cast<editor*>(widget(i))->path() == _filepath)
+        if (qobject_cast<editor *>(widget(i))->path() == _filepath)
         {
             setCurrentIndex(i);
             return;
@@ -80,7 +80,7 @@ void canvas::open_image(const QString& _filepath)
     {
         add_editor(new editor(_filepath));
     }
-    catch (std::runtime_error& err)
+    catch (std::runtime_error &err)
     {
         emit failed(err.what());
     }
@@ -88,7 +88,7 @@ void canvas::open_image(const QString& _filepath)
 
 void canvas::save()
 {
-    auto* const ed = current_editor();
+    auto *const ed = current_editor();
     if (!ed || (ed->history()->isClean() && ed->exists()))
         return;
 
@@ -104,7 +104,7 @@ void canvas::save()
     }
 }
 
-void canvas::save_as(editor* _ed)
+void canvas::save_as(editor *_ed)
 {
     disconnect(fp_conn_);
     fp_conn_ = connect(
@@ -117,11 +117,11 @@ void canvas::save_as(editor* _ed)
 
 void canvas::save_as()
 {
-    if (auto* ed = current_editor())
+    if (auto *ed = current_editor())
         save_as(ed);
 }
 
-void canvas::close_editor(editor* _ed, int _index)
+void canvas::close_editor(editor *_ed, int _index)
 {
     removeTab(_index != -1 ? _index : currentIndex());
     _ed->close();
@@ -129,7 +129,7 @@ void canvas::close_editor(editor* _ed, int _index)
 
 void canvas::close_image()
 {
-    auto* ed = current_editor();
+    auto *ed = current_editor();
     if (!ed)
         return;
     if (ed->history()->isClean())
@@ -139,7 +139,7 @@ void canvas::close_image()
     }
     disconnect(sfd_conn_);
     sfd_conn_ = connect(save_file_dialog_, &save_file_dialog::accepted,
-        [this, ed](const QString* _path) { fd_on_accepted(_path, ed, true); });
+        [this, ed](const QString *_path) { fd_on_accepted(_path, ed, true); });
 
     save_file_dialog_->open(ed->name(), ed->path());
 }
@@ -148,7 +148,7 @@ bool canvas::try_exit()
 {
     while (count() > 0)
     {
-        auto* ed = qobject_cast<editor*>(widget(count() - 1));
+        auto *ed = qobject_cast<editor *>(widget(count() - 1));
         if (ed->history()->isClean())
         {
             close_editor(ed);
@@ -157,7 +157,7 @@ bool canvas::try_exit()
 
         disconnect(sfd_conn_);
         sfd_conn_ = connect(save_file_dialog_, &save_file_dialog::accepted,
-            [this, ed](const QString* _path) { fd_on_accepted(_path, ed, true, true); });
+            [this, ed](const QString *_path) { fd_on_accepted(_path, ed, true, true); });
 
         if (save_file_dialog_->isHidden())
             save_file_dialog_->open(ed->name(), ed->path());
@@ -168,19 +168,19 @@ bool canvas::try_exit()
 
 void canvas::undo()
 {
-    auto* ed = current_editor();
+    auto *ed = current_editor();
     if (!ed)
         return;
-    if (auto* h = ed->history(); h->canUndo())
+    if (auto *h = ed->history(); h->canUndo())
         h->undo();
 }
 
 void canvas::redo()
 {
-    auto* ed = current_editor();
+    auto *ed = current_editor();
     if (!ed)
         return;
-    if (auto* h = ed->history(); h->canRedo())
+    if (auto *h = ed->history(); h->canRedo())
         h->redo();
 }
 
@@ -193,29 +193,29 @@ void canvas::swap_colors()
 
 void canvas::zoom_in()
 {
-    if (auto* ed = current_editor())
+    if (auto *ed = current_editor())
         ed->zoom_in();
 }
 
 void canvas::zoom_out()
 {
-    if (auto* ed = current_editor())
+    if (auto *ed = current_editor())
         ed->zoom_out();
 }
 
 void canvas::default_zoom()
 {
-    if (auto* ed = current_editor())
+    if (auto *ed = current_editor())
         ed->default_zoom();
 }
 
 void canvas::choose_tool(const tool::type _type)
 {
-    auto* t = tool::current;
+    auto *t = tool::current;
     if (t->type_ == _type)
         return;
-    auto* next = tool_factory::make(_type);
-    auto* ed = current_editor();
+    auto *next = tool_factory::make(_type);
+    auto *ed = current_editor();
     t->exit_editor(ed);
     delete t;
     t = tool::current = next;
@@ -223,20 +223,20 @@ void canvas::choose_tool(const tool::type _type)
     emit changed(ed);
 }
 
-editor* canvas::current_editor() const noexcept { return qobject_cast<editor*>(currentWidget()); }
+editor *canvas::current_editor() const noexcept { return qobject_cast<editor *>(currentWidget()); }
 
-bool canvas::is_path_occupied(const QString& _path, const editor* _editor) const noexcept
+bool canvas::is_path_occupied(const QString &_path, const editor *_editor) const noexcept
 {
     for (int i = 0, mx = count(); i < mx; ++i)
     {
-        const auto* const ed = qobject_cast<editor*>(widget(i));
+        const auto *const ed = qobject_cast<editor *>(widget(i));
         if (ed->path() == _path && ed != _editor)
             return true;
     }
     return false;
 }
 
-void canvas::fd_on_accepted(const QString* _path, editor* _ed, bool _close, bool _try_exit)
+void canvas::fd_on_accepted(const QString *_path, editor *_ed, bool _close, bool _try_exit)
 {
     if (_path)
     {
@@ -267,9 +267,9 @@ void canvas::set_color(QColor _color, bool _primary)
     emit color_updated(_color, _primary);
 }
 
-void canvas::save_gui_state(QSettings& _settings) { _settings.setValue(save_as_fd_key, save_as_fd_->saveState()); }
+void canvas::save_gui_state(QSettings &_settings) { _settings.setValue(save_as_fd_key, save_as_fd_->saveState()); }
 
-void canvas::load_gui_state(QSettings& _settings)
+void canvas::load_gui_state(QSettings &_settings)
 {
     if (auto v = _settings.value(save_as_fd_key); !v.isNull())
         save_as_fd_->restoreState(v.toByteArray());

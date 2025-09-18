@@ -2,7 +2,7 @@
 
 namespace mytec
 {
-palette_action::palette_action(QObject* _parent) : QWidgetAction(_parent) { setCheckable(true); }
+palette_action::palette_action(QObject *_parent) : QWidgetAction(_parent) { setCheckable(true); }
 
 void palette_action::set_colors(QColor _primary, QColor _secondary)
 {

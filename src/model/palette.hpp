@@ -17,12 +17,12 @@ public:
         _count
     };
 
-    static const palette* make(type _type);
+    static const palette *make(type _type);
 
-    static const palette* find(const QList<QRgb>& _color_table);
+    static const palette *find(const QList<QRgb> &_color_table);
 
-    [[nodiscard]] const QVector<QRgb>& contents() const noexcept;
-    [[nodiscard]] const QString& name() const noexcept;
+    [[nodiscard]] const QVector<QRgb> &contents() const noexcept;
+    [[nodiscard]] const QString &name() const noexcept;
     [[nodiscard]] bool has(QColor _color) const noexcept;
     [[nodiscard]] QColor get(int _x, int _y) const noexcept;
 
@@ -34,7 +34,7 @@ private:
         bool operator()(QColor _a, QColor _b) const;
     };
 
-    explicit palette(type _type, const QString& _filename, QString&& _name);
+    explicit palette(type _type, const QString &_filename, QString &&_name);
 
     const QString name_;
     QVector<QRgb> contents_;

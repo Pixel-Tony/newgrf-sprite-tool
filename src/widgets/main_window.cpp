@@ -5,10 +5,10 @@
 
 namespace
 {
-QAction* make_tool_action(QActionGroup* _group, const QString& _name, const QKeySequence& _shortcut,
-    const QString& _atlas, mytec::tool::type _type)
+QAction *make_tool_action(QActionGroup *_group, const QString &_name, const QKeySequence &_shortcut,
+    const QString &_atlas, mytec::tool::type _type)
 {
-    auto* const _target = _group->addAction(_name);
+    auto *const _target = _group->addAction(_name);
     QIcon icon;
     {
         const auto atlas = QPixmap{_atlas};
@@ -54,7 +54,7 @@ main_window::main_window()
 
     connect(create_fd_, &create_file_dialog::confirmed, canv_, &canvas::create_image);
     connect(canv_, &canvas::changed, this, &main_window::on_active_editor_changed);
-    connect(canv_, &canvas::failed, [this](const QString& _msg) { show_message(_msg); });
+    connect(canv_, &canvas::failed, [this](const QString &_msg) { show_message(_msg); });
     connect(canv_, &canvas::exit_prepared, this, &main_window::close);
     statusBar()->addWidget(status_bar_);
 
@@ -78,7 +78,7 @@ void main_window::write_gui_state()
     canv_->save_gui_state(settings);
 }
 
-void main_window::closeEvent(QCloseEvent* _ev)
+void main_window::closeEvent(QCloseEvent *_ev)
 {
     bool will_exit = canv_->try_exit();
     if (will_exit)
@@ -86,10 +86,10 @@ void main_window::closeEvent(QCloseEvent* _ev)
     _ev->setAccepted(will_exit);
 }
 
-void main_window::on_active_editor_changed(const editor* const _editor)
+void main_window::on_active_editor_changed(const editor *const _editor)
 {
     const bool enabled = _editor;
-    for (auto* a : QList{save_as_, close_, default_zoom_})
+    for (auto *a : QList{save_as_, close_, default_zoom_})
         a->setEnabled(enabled);
     save_->setEnabled(enabled && (!_editor->exists() || !_editor->history()->isClean()));
     zoom_out_->setEnabled(enabled && _editor->zoom() != editor::zoom_bounds.first);
@@ -101,10 +101,10 @@ void main_window::on_active_editor_changed(const editor* const _editor)
     QString title_text = "%0";
     if (enabled)
     {
-        const auto& img = _editor->get_image();
+        const auto &img = _editor->get_image();
         const auto [w, h] = img.contents().size();
         const char dirty_asterisk = "* "[_editor->history()->isClean()];
-        const auto* const palette = img.get_palette();
+        const auto *const palette = img.get_palette();
         status_bar_text = tr("%0%1 (%2) | %3x%4 | %5%")
                               .arg(ellipsis(_editor->name(), 50), dirty_asterisk, palette ? palette->name() : "32bpp",
                                   QString::number(w), QString::number(h),
@@ -116,7 +116,7 @@ void main_window::on_active_editor_changed(const editor* const _editor)
     status_bar_->setText(status_bar_text);
 }
 
-void main_window::show_message(const QString& _message, QMessageBox::Icon _icon)
+void main_window::show_message(const QString &_message, QMessageBox::Icon _icon)
 {
     message_box_->setIcon(_icon);
     message_box_->setText(_message);
@@ -158,7 +158,7 @@ void main_window::create_actions_menus()
     view_ = make_tool_action(tool_group_, "View", {"W"}, ":/assets/icons/view.png", tool::view);
     pen_ = make_tool_action(tool_group_, "Pen", {"D"}, ":/assets/icons/pen.png", tool::pen);
     connect(tool_group_, &QActionGroup::triggered,
-        [this](QAction* _act) { canv_->choose_tool(qvariant_cast<tool::type>(_act->data())); });
+        [this](QAction *_act) { canv_->choose_tool(qvariant_cast<tool::type>(_act->data())); });
     view_->trigger();
 
     connect(palette_tab_, &palette_tab::color_selected, canv_, &canvas::set_color);
@@ -172,7 +172,7 @@ void main_window::create_actions_menus()
     tool_menu_ = menuBar()->addMenu("Tool");
     tool_menu_->addActions(tool_group_->actions());
 
-    auto* tool_bar_ = new QToolBar("Tool Bar");
+    auto *tool_bar_ = new QToolBar("Tool Bar");
     tool_bar_->setMovable(false);
     tool_bar_->setIconSize(view_->icon().availableSizes()[0]);
     tool_bar_->addActions(tool_group_->actions());

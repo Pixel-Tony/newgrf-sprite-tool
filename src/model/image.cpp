@@ -7,7 +7,7 @@ image::image(QSize _size, palette::type _type) : contents_(_size, QImage::Format
     contents_.fill(Qt::white);
 }
 
-image::image(const QString& _filepath) : contents_(_filepath, "png"), palette_(palette::find(contents_.colorTable()))
+image::image(const QString &_filepath) : contents_(_filepath, "png"), palette_(palette::find(contents_.colorTable()))
 {
     if (contents_.isNull())
         throw std::runtime_error{"File is not an image."};
@@ -15,7 +15,7 @@ image::image(const QString& _filepath) : contents_(_filepath, "png"), palette_(p
         contents_.convertTo(QImage::Format_ARGB32);
 }
 
-bool image::set_pixel_color(const QPoint _point, const QColor _color, QColor* _old)
+bool image::set_pixel_color(const QPoint _point, const QColor _color, QColor *_old)
 {
     if (palette_ && !palette_->has(_color))
     {
@@ -35,7 +35,7 @@ bool image::set_pixel_color(const QPoint _point, const QColor _color)
     return set_pixel_color(_point, _color, &tmp);
 }
 
-void image::paint(QPainter* _painter, const QStyleOptionGraphicsItem*, QWidget*)
+void image::paint(QPainter *_painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     const auto rect_ = QRectF({}, contents_.size());
     if (!palette_)
@@ -55,17 +55,17 @@ void image::paint(QPainter* _painter, const QStyleOptionGraphicsItem*, QWidget*)
     _painter->drawImage(rect_, contents_);
 }
 
-bool image::save_with_palette(const QString& _filepath, const char* _format) const
+bool image::save_with_palette(const QString &_filepath, const char *_format) const
 {
     return (palette_ == nullptr ? contents_ : contents_.convertToFormat(QImage::Format_Indexed8, palette_->contents()))
         .save(_filepath, _format);
 }
 
-void image::mouseMoveEvent(QGraphicsSceneMouseEvent* _ev) { emit mouse_moved(*_ev); }
+void image::mouseMoveEvent(QGraphicsSceneMouseEvent *_ev) { emit mouse_moved(*_ev); }
 
-void image::mousePressEvent(QGraphicsSceneMouseEvent* _ev) { emit mouse_pressed(*_ev); }
+void image::mousePressEvent(QGraphicsSceneMouseEvent *_ev) { emit mouse_pressed(*_ev); }
 
-void image::mouseReleaseEvent(QGraphicsSceneMouseEvent* _ev) { emit mouse_released(*_ev); }
+void image::mouseReleaseEvent(QGraphicsSceneMouseEvent *_ev) { emit mouse_released(*_ev); }
 
 QRectF image::boundingRect() const
 {
@@ -73,9 +73,9 @@ QRectF image::boundingRect() const
     return {0, 0, size.width(), size.height()};
 }
 
-QImage& image::contents() noexcept { return contents_; }
+QImage &image::contents() noexcept { return contents_; }
 
-const QImage& image::contents() const noexcept { return contents_; }
+const QImage &image::contents() const noexcept { return contents_; }
 
-const palette* image::get_palette() const noexcept { return palette_; }
+const palette *image::get_palette() const noexcept { return palette_; }
 } // namespace mytec

@@ -57,7 +57,7 @@ Language: Cpp
 NamespaceIndentation: None
 PPIndentWidth: 0
 PackConstructorInitializers: CurrentLine
-PointerAlignment: Left
+PointerAlignment: Right
 ReferenceAlignment: Pointer
 SeparateDefinitionBlocks: Always
 SortIncludes: CaseSensitive

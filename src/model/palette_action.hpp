@@ -10,7 +10,7 @@ class palette_action : public QWidgetAction
     Q_OBJECT
 
 public:
-    explicit palette_action(QObject* _parent = nullptr);
+    explicit palette_action(QObject *_parent = nullptr);
 
 public slots:
     void set_colors(QColor _primary, QColor _secondary);

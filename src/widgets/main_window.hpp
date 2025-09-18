@@ -19,47 +19,47 @@ public:
     main_window();
 
 protected:
-    void closeEvent(QCloseEvent* _ev) override;
+    void closeEvent(QCloseEvent *_ev) override;
 
 private slots:
-    void on_active_editor_changed(const editor* _editor);
+    void on_active_editor_changed(const editor *_editor);
 
 private:
     void load_gui_state();
     void write_gui_state();
-    void show_message(const QString& _message, QMessageBox::Icon _icon = QMessageBox::Warning);
+    void show_message(const QString &_message, QMessageBox::Icon _icon = QMessageBox::Warning);
     void create_actions_menus();
 
-    canvas* canv_ = nullptr;
-    QLabel* status_bar_ = nullptr;
-    create_file_dialog* create_fd_ = nullptr;
-    QFileDialog* open_fd_ = nullptr;
-    QMessageBox* message_box_ = nullptr;
-    palette_tab* palette_tab_ = nullptr;
+    canvas *canv_ = nullptr;
+    QLabel *status_bar_ = nullptr;
+    create_file_dialog *create_fd_ = nullptr;
+    QFileDialog *open_fd_ = nullptr;
+    QMessageBox *message_box_ = nullptr;
+    palette_tab *palette_tab_ = nullptr;
 
-    QMenu* file_menu_ = nullptr;
-    QAction* save_ = nullptr;
-    QAction* save_as_ = nullptr;
-    QAction* close_ = nullptr;
+    QMenu *file_menu_ = nullptr;
+    QAction *save_ = nullptr;
+    QAction *save_as_ = nullptr;
+    QAction *close_ = nullptr;
 
-    QMenu* edit_menu_ = nullptr;
-    QAction* undo_ = nullptr;
-    QAction* redo_ = nullptr;
+    QMenu *edit_menu_ = nullptr;
+    QAction *undo_ = nullptr;
+    QAction *redo_ = nullptr;
 
-    QMenu* view_menu_ = nullptr;
-    QAction* zoom_in_ = nullptr;
-    QAction* zoom_out_ = nullptr;
-    QAction* default_zoom_ = nullptr;
-    palette_action* palette_toggle_ = nullptr;
+    QMenu *view_menu_ = nullptr;
+    QAction *zoom_in_ = nullptr;
+    QAction *zoom_out_ = nullptr;
+    QAction *default_zoom_ = nullptr;
+    palette_action *palette_toggle_ = nullptr;
 
-    QMenu* tool_menu_ = nullptr;
+    QMenu *tool_menu_ = nullptr;
 
-    QActionGroup* tool_group_ = nullptr;
-    QAction* view_ = nullptr;
-    QAction* pen_ = nullptr;
+    QActionGroup *tool_group_ = nullptr;
+    QAction *view_ = nullptr;
+    QAction *pen_ = nullptr;
 
     // A workaround to avoid initializing context on editor creation
-    QOpenGLWidget* initialize_opengl_context_ = new QOpenGLWidget(this);
+    QOpenGLWidget *initialize_opengl_context_ = new QOpenGLWidget(this);
 };
 } // namespace mytec
 

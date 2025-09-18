@@ -2,7 +2,7 @@
 
 namespace
 {
-QString name_from_path(const QString& _path)
+QString name_from_path(const QString &_path)
 {
     auto value = QFileInfo{_path}.fileName();
     const auto slice_len = value.length() - 4;
@@ -12,17 +12,17 @@ QString name_from_path(const QString& _path)
 
 namespace mytec
 {
-editor::editor(QString&& _name, QSize _image_size, palette::type _palette, QWidget* _parent)
+editor::editor(QString &&_name, QSize _image_size, palette::type _palette, QWidget *_parent)
     : editor(new image(_image_size, _palette), {}, std::move(_name), _parent)
 {
 }
 
-editor::editor(const QString& _filepath, QWidget* _parent)
+editor::editor(const QString &_filepath, QWidget *_parent)
     : editor(new image(_filepath), QString{_filepath}, std::move(name_from_path(_filepath)), _parent)
 {
 }
 
-editor::editor(image* _image, QString&& _path, QString&& _name, QWidget* _parent)
+editor::editor(image *_image, QString &&_path, QString &&_name, QWidget *_parent)
     : QGraphicsView(_parent),
       image_(_image),
       name_(std::move(_name)),
@@ -48,23 +48,23 @@ editor::editor(image* _image, QString&& _path, QString&& _name, QWidget* _parent
 
 editor::~editor() { history_->disconnect(this); }
 
-image& editor::get_image() noexcept { return *image_; }
+image &editor::get_image() noexcept { return *image_; }
 
-const image& editor::get_image() const noexcept { return *image_; }
+const image &editor::get_image() const noexcept { return *image_; }
 
-const QString& editor::name() const noexcept { return name_; }
+const QString &editor::name() const noexcept { return name_; }
 
-const QString& editor::path() const noexcept { return path_; }
+const QString &editor::path() const noexcept { return path_; }
 
-QUndoStack* editor::history() noexcept { return history_; }
+QUndoStack *editor::history() noexcept { return history_; }
 
-const QUndoStack* editor::history() const noexcept { return history_; }
+const QUndoStack *editor::history() const noexcept { return history_; }
 
 bool editor::exists() const noexcept { return !path_.isEmpty(); }
 
 float editor::zoom() const noexcept { return zoom_; }
 
-bool editor::event(QEvent* _ev) { return tool::current->editor_event(*_ev, *this) || QGraphicsView::event(_ev); }
+bool editor::event(QEvent *_ev) { return tool::current->editor_event(*_ev, *this) || QGraphicsView::event(_ev); }
 
 void editor::update_position_scale()
 {
@@ -72,7 +72,7 @@ void editor::update_position_scale()
     setTransform(QTransform().translate(p.x(), p.y()).scale(zoom_, zoom_));
 }
 
-void editor::wheelEvent(QWheelEvent* _ev)
+void editor::wheelEvent(QWheelEvent *_ev)
 {
     _ev->accept();
     const auto sign = 2 * (_ev->angleDelta().y() > 0) - 1;
@@ -97,7 +97,7 @@ void editor::default_zoom()
 
 bool editor::save() { return save(path_); }
 
-bool editor::save(const QString& _path)
+bool editor::save(const QString &_path)
 {
     if (!image_->save_with_palette(_path, "png"))
         return false;
@@ -123,19 +123,19 @@ void editor::apply_zoom_delta(const float _delta, const QPoint _center)
     emit changed();
 }
 
-void editor::mousePressEvent(QMouseEvent* _ev)
+void editor::mousePressEvent(QMouseEvent *_ev)
 {
     if (!tool::current->editor_event(*_ev, *this))
         QGraphicsView::mousePressEvent(_ev);
 }
 
-void editor::mouseReleaseEvent(QMouseEvent* _ev)
+void editor::mouseReleaseEvent(QMouseEvent *_ev)
 {
     if (!tool::current->editor_event(*_ev, *this))
         QGraphicsView::mouseReleaseEvent(_ev);
 }
 
-void editor::mouseMoveEvent(QMouseEvent* _ev)
+void editor::mouseMoveEvent(QMouseEvent *_ev)
 {
     if (!tool::current->editor_event(*_ev, *this))
         QGraphicsView::mouseMoveEvent(_ev);
