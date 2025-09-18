@@ -23,6 +23,8 @@ public:
 
 public:
     [[nodiscard]] QColor color(bool _primary) const noexcept;
+    void save_gui_state(QSettings& _settings);
+    void load_gui_state(QSettings& _settings);
 
 signals:
     void changed(editor* _editor);

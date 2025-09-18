@@ -66,12 +66,16 @@ void main_window::load_gui_state()
 {
     QSettings settings;
     palette_tab_->setVisible(settings.value("paletteTab/visible", false).toBool());
+    open_fd_->setDirectory(settings.value("openFileDialog/dir", QString()).toString());
+    canv_->load_gui_state(settings);
 }
 
 void main_window::write_gui_state()
 {
     QSettings settings;
     settings.setValue("paletteTab/visible", palette_tab_->isVisible());
+    settings.setValue("openFileDialog/dir", open_fd_->directory().absolutePath());
+    canv_->save_gui_state(settings);
 }
 
 void main_window::closeEvent(QCloseEvent* _ev)

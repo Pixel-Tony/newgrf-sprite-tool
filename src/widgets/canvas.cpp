@@ -5,6 +5,7 @@
 namespace
 {
 const auto err_could_not_save = "Couldn't save the image.";
+const auto save_as_fd_key = "canvas/saveFileDialog/state";
 } // namespace
 
 namespace mytec
@@ -265,4 +266,13 @@ void canvas::set_color(QColor _color, bool _primary)
     (_primary ? primary_ : secondary_) = _color;
     emit color_updated(_color, _primary);
 }
+
+void canvas::save_gui_state(QSettings& _settings) { _settings.setValue(save_as_fd_key, save_as_fd_->saveState()); }
+
+void canvas::load_gui_state(QSettings& _settings)
+{
+    if (auto v = _settings.value(save_as_fd_key); !v.isNull())
+        save_as_fd_->restoreState(v.toByteArray());
+}
+
 } // namespace mytec
